@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#1c2522"><title>CuePatch · Show desk</title><link rel="stylesheet" href="style.css"></head><body>
+<header><a href="#" class="brand">▥ &nbsp;CuePatch</a><span>SHOW CONTROL</span><span id="network"></span></header>
+<main>
+<section class="mast"><div><div class="eyebrow">Production desk</div><h1 id="title">Opening night</h1><p id="sub">Campus showcase · Rehearsal sheet</p></div><div class="revision"><small>CALLING COPY</small><strong id="rev">REV 01</strong></div></section>
+<div class="desk"><section class="sheet"><div class="bar"><h2>Cue sheet</h2><label class="import">Import JSON<input type="file" id="file" accept=".json,application/json"></label></div>
+<div class="filters"><label for="crew">Crew</label><select id="crew"></select><button id="export" class="link">Export sheet ↓</button></div><div id="rundown"></div></section>
+<section class="change"><div class="bar"><h2>Change desk</h2><span class="lamp" aria-hidden="true"></span></div>
+<label for="note">Rehearsal note</label><textarea id="note" maxlength="1500" rows="5" placeholder="What changed, and which part of the show does it affect?"></textarea>
+<label for="mode">Inference mode</label><select id="mode"><option value="private">On-device only</option><option value="hybrid">On-device with cloud fallback</option></select>
+<p id="privacy"></p><button id="analyse" class="primary">Find affected cues →</button>
+<button id="example" class="example">Explore a worked rehearsal</button>
+<p id="status" role="status" aria-live="polite"></p><div id="review"></div></section></div>
+<section class="history"><div class="bar"><h2>Revision log</h2><span id="session">This browser</span></div><div id="log"></div></section>
+<footer><a href="checks.html">Test live Firebase inference</a><button id="download" class="link">Download rundown JSON ↓</button></footer></main>
+<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="app.js"></script></body></html>
