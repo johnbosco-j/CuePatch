@@ -2,15 +2,21 @@
 
 A stage manager turns one last-minute rehearsal change into reviewed revisions for sound, lighting, camera and stage. Each suggestion names a cue, shows its old and new instructions and quotes the rehearsal note. The caller decides which edits to release. Each crew can export its own calling copy.
 
-## Try the rehearsal
+## Use the show desk
 
-Open `web/index.html` in a desktop browser. Choose **Explore a worked rehearsal**. The original eight-cue campus showcase and its four scripted changes are included as a walkthrough. Select some proposals, approve them, filter by crew and export a sheet. Revisions survive a refresh in the same tab when session storage is available. Export the rundown JSON to carry it into a new session. The walkthrough is clearly marked and runs without credentials.
+Open the deployed show desk in a desktop browser. Choose **Start a show**, enter the production name and paste spreadsheet rows with four columns (ID, time in HH:MM, crew and instruction). Tab-separated or vertical-bar-separated lines are supported. Alternatively import an existing rundown JSON, or use the included eight-cue campus showcase. The desk accepts 1–60 cues.
 
-To use your own material, download the rundown JSON, edit the entries and use **Import JSON**. Each cue has a unique alphanumeric ID (hyphens and underscores allowed), time in HH:MM, crew and text. The desk supports 1–60 cues. A cue's ID, time and crew remain fixed when approving instruction changes. Import a revised rundown for schedule or staffing changes. The review tool changes written instructions only.
+Enter a rehearsal change. For a supported, prepared Chrome device, choose **On-device only**. In Brave and other online browsers without the local model, choose **On-device with cloud fallback** to allow Firebase to process the sheet. Click **Find affected cues**. Review each proposed edit against its highlighted quote and select only the changes to issue. **Approve selected cues** creates a revision. Filter by crew, choose **Export sheet** to inspect that department’s calling copy and **Download text file** to save it.
+
+The example-note button fills the note field. Every proposal requires a successful Firebase response. The tab retains its approved revision across refreshes. Use **Download rundown JSON** to carry the approved cue list into another session. Cue IDs, times and crew assignments remain fixed when approving generated instruction changes.
+
+## Observed on November 21, 2026
+
+Two live requests from Brave used the dedicated project with App Check. Moving the opening host to the lectern returned precisely the four opening cues in 2.88 seconds. A new camera note about the first song returned VC-02 alone in 2.1 seconds. The caller approved that edit as revision 2. Brave reported the on-device model unavailable in local-only mode. A successful on-device/offline run on supported Chrome still needs hardware verification.
 
 ## Run the Firebase version
 
-1. Use a dedicated Firebase demo project. In Firebase Console enable **AI Logic** with the **Gemini Developer API**. Register a web app. Register the same web app in App Check with a **reCAPTCHA Enterprise** web key for your demo domain. Confirm that enforcement for Firebase AI Logic is active.
+1. Use a dedicated Firebase project. In Firebase Console enable **AI Logic** with the **Gemini Developer API**. Register a web app. Register the same web app in App Check with a **reCAPTCHA Enterprise** web key for your demo domain. Confirm that enforcement for Firebase AI Logic is active.
 2. From this directory copy `web/config.js` to `config.local.js`. Fill `firebase` with the demo app's browser configuration from Project Settings and `appCheckSiteKey` with the public Enterprise site key. These values are delivered to the browser. Keep their source file outside version control. Never enter a Gemini API key, service-account credential, reCAPTCHA secret or App Check debug token in those fields.
 3. For localhost only, set `localDebug: true`. Register the browser-generated debug token privately in the Firebase console as described in the official guide. Use `localDebug: false` with the registered live domain.
 4. Build and serve. Python 3 is required for these commands. The app loads Firebase JS SDK 13.4.0 from Google's CDN when configured. A first online load is required.
@@ -34,8 +40,7 @@ Choose **Test live Firebase inference** in the show desk footer. Each click
 runs one new Firebase request against the same eight fictional cues. Select
 one of four cases and a routing mode. The results show the SDK source, elapsed
 seconds, missed cue IDs, extra cue IDs and the proposed wording. Download the
-JSON before closing the page. Failed requests appear as failures. Scripted
-walkthroughs do not populate this report. To evaluate an offline run, open and
+JSON before closing the page. Failed requests appear as failures. To evaluate an offline run, open and
 prepare the checks page while online, then disconnect with that tab open.
 
 ## Where inference happens

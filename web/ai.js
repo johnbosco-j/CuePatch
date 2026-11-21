@@ -4,7 +4,7 @@ const CueAI = (() => {
   async function connect() {
     const cfg = window.CUEPATCH_CONFIG;
     if (!cfg?.firebase?.apiKey || !cfg.firebase.appId || !cfg.firebase.projectId || !cfg.appCheckSiteKey) {
-      failure = 'Live AI needs a configured Firebase demo project. The rehearsal example works now.';
+      failure = 'Live AI needs a configured Firebase project. You can still create, import and export a rundown.';
       return;
     }
     try {

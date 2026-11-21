@@ -11,12 +11,16 @@ const CueCore = (() => {
     ['VC-02','18:04','Camera','Take the singer close-up for the first song.']
   ].map(([id,time,crew,text]) => ({id,time,crew,text}));
   const example = 'For the opening welcome only, move the host to the centre lectern and use the lectern mic. The first song stays as rehearsed.';
-  const fixture = [
-    ['ST-01','Stand by the opening host at the centre lectern.'],
-    ['AU-01','Open the lectern mic for the opening welcome.'],
-    ['LX-01','Light the centre lectern for the opening welcome.'],
-    ['VC-01','Frame the opening host at the centre lectern.']
-  ].map(([id,after]) => ({id,after,evidence: example.split('. ')[0]+'.'}));
+  function parseCueLines(text) {
+    const rows = text.trim().split(/\r?\n/).filter(line => line.trim()).map((line, i) => {
+      const separator = line.includes('\t') ? '\t' : '|';
+      const cells = line.split(separator).map(value => value.trim());
+      if (cells.length !== 4) throw Error('Line '+(i+1)+' needs four columns: ID, time, crew and instruction.');
+      const [id,time,crew,instruction] = cells;
+      return {id,time,crew,text:instruction};
+    });
+    return validateSheet(rows);
+  }
   function validateSheet(rows) {
     if (!Array.isArray(rows) || !rows.length || rows.length > 60) throw Error('Choose a JSON array with 1–60 cues.');
     const seen = new Set();
@@ -47,6 +51,6 @@ const CueCore = (() => {
     for (const p of patches) if (!rows.some(r=>r.id===p.id && r.text===p.before)) throw Error('The sheet changed. Analyse this revision again.');
     return rows.map(r=>changes.has(r.id)?{...r,text:changes.get(r.id).after}:{...r});
   }
-  return {sample,example,fixture,validateSheet,validatePatch,parseReply,commit};
+  return {sample,example,parseCueLines,validateSheet,validatePatch,parseReply,commit};
 })();
 if (typeof module !== 'undefined') module.exports = CueCore;

@@ -28,7 +28,7 @@ function download(name,text,type) {
 }
 function render() {
   $('title').textContent=state.name; $('rev').textContent='REV '+String(revision()).padStart(2,'0');
-  $('sub').textContent=state.sample?'Campus showcase · Rehearsal sheet':'Imported production · Rehearsal sheet';
+  $('sub').textContent=state.sample?'Campus showcase · Rehearsal sheet':'Production rundown';
   const crew=$('crew').value;
   const crews=[...new Set(state.rows.map(r=>r.crew))];
   const options=['',...crews].map(s=>{const opt=el('option',s||'All crews');opt.value=s;return opt;});
@@ -47,13 +47,14 @@ function render() {
   $('file').disabled=busy; $('mode').disabled=busy; $('note').disabled=busy;
   $('example').hidden=!state.sample || revision()!==1;
   $('example').disabled=busy;
+  $('create-show').disabled=busy;
 }
 function clearReview() { pending=null;$('review').replaceChildren(); }
 function review(patch,source,elapsed) {
   clearReview();
   if (!patch.length) {status(source+' · No supported changes found. Review the rundown before calling the show.');return;}
   pending={patch,source};
-  const root=$('review');root.append(el('h3','Review '+patch.length+' proposed changes'));
+  const root=$('review');root.append(el('h3','Review '+patch.length+' proposed '+(patch.length===1?'change':'changes')));
   status(source+(elapsed===undefined?'':' · '+elapsed.toFixed(1)+' s')+' · Sheet awaiting approval.');
   const inputs=patch.map(p=>{
     const label=el('label',undefined,'patch');const item=el('input');item.type='checkbox';
@@ -67,13 +68,14 @@ function review(patch,source,elapsed) {
     if (!pending || !chosen.length) return;
     const next=CueCore.commit(state.rows,chosen);
     persist({...state,rows:next,history:[...state.history,{source,ids:chosen.map(c=>c.id)}]});
-    clearReview();render();status('Revision '+revision()+' saved. Select a crew and export its calling copy.');
+    $('calling-copy').hidden=true;clearReview();render();status('Revision '+revision()+' saved. Select a crew and export its calling copy.');
   };
   root.append(apply);
 }
 $('example').onclick=()=>{
   $('note').value=CueCore.example;
-  review(CueCore.validatePatch(state.rows,CueCore.example,CueCore.fixture),'Worked example · scripted');
+  clearReview();
+  status(CueAI.reason() || 'Note loaded. Select your inference mode and find affected cues.');
   render();
 };
 function modeText() {
@@ -92,11 +94,36 @@ $('analyse').onclick=async()=>{
   } catch (e) { status('Analysis stopped. '+(e instanceof SyntaxError?'The model returned unreadable JSON. Try a shorter note.':e.message)); }
   finally {active=false;busy=false;render();}
 };
-$('crew').onchange=render;
-$('export').onclick=()=>{
+$('crew').onchange=()=>{$('calling-copy').hidden=true;render();};
+function crewCopy() {
   const crew=$('crew').value;
-  const items=state.rows.filter(r=>!crew || r.crew===crew);
-  download('cuepatch-rev-'+revision()+'.txt',[state.name+' / REV '+revision(),crew || 'All crews','',...items.map(r=>r.time+'  '+r.id+'  '+r.crew+'  '+r.text)].join('\n'),'text/plain');
+  const items=state.rows.filter(row=>!crew || row.crew===crew);
+  return [state.name+' / REV '+revision(),crew || 'All crews','',...items.map(row=>
+    row.time+'  '+row.id+'  '+row.crew+'  '+row.text)].join('\n');
+}
+$('export').onclick=()=>{
+  $('copy-text').textContent=crewCopy();
+  $('calling-copy').hidden=false;
+};
+$('save-sheet').onclick=()=>download('cuepatch-rev-'+revision()+'.txt',crewCopy(),'text/plain;charset=utf-8');
+$('close-copy').onclick=()=>{$('calling-copy').hidden=true;};
+function openRundown(name,rows) {
+  if((!state.sample || state.history.length) && !confirm('Replace this tab’s current rundown? Export it first if you need to keep it.')) return false;
+  persist({rows,history:[],name,sample:false});
+  $('crew').value='';$('calling-copy').hidden=true;clearReview();$('note').value='';
+  status('Rundown ready. Enter a rehearsal change.');render();
+  return true;
+}
+$('show-form').onsubmit=event=>{
+  event.preventDefault();
+  if (busy) return;
+  try {
+    const name=$('show-name').value.trim();
+    if(!name) throw Error('Enter a show name.');
+    const rows=CueCore.parseCueLines($('show-cues').value);
+    if(openRundown(name,rows)){ $('show-form').reset();$('new-show').open=false; }
+    $('form-error').textContent='';
+  } catch(error){ $('form-error').textContent=error.message; }
 };
 $('download').onclick=()=>download('rundown.json',JSON.stringify(state.rows,null,2),'application/json');
 $('file').onchange=async()=>{
@@ -105,9 +132,7 @@ $('file').onchange=async()=>{
   try {
     if(file.size>100000) throw Error('Use a rundown file smaller than 100 KB.');
     const rows=CueCore.validateSheet(JSON.parse(await file.text()));
-    if(state.history.length && !confirm('Replace this tab’s revised rundown? Export a copy first if you need to keep it.')) return;
-    persist({rows,history:[],name:file.name.replace(/\.json$/i,'').slice(0,60)||'Imported rundown',sample:false});
-    clearReview();$('note').value='';status('Rundown imported.');
+    openRundown(file.name.replace(/\.json$/i,'').slice(0,60)||'Imported rundown',rows);
   } catch(e) {status(e.message);}
   finally {busy=false;$('file').value='';render();}
 };

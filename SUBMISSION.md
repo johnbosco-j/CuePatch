@@ -18,13 +18,13 @@ One backstage change can make four crew sheets wrong. CuePatch finds affected cu
 
 **Description draft**  Minutes before curtain, the host moves to a lectern. Sound needs a different microphone, lighting needs a new mark, and camera needs a new opening frame. The next performer still needs the original setup. CuePatch gives the stage manager one place to review the consequences. Each proposal links an existing cue to an exact phrase in the rehearsal note. The caller approves changes individually and exports a versioned sheet for each department.
 
-CuePatch uses the Firebase AI Logic Web SDK with App Check. A local-only mode handles private rehearsal notes on a supported Chrome device. An opt-in hybrid mode prefers the on-device model and permits cloud fallback. The review desk displays the source returned by the SDK. Both modes feed the same validation and approval process. Add the specific device, browser version, observed routes and pilot measurement here after testing.
+CuePatch uses the Firebase AI Logic Web SDK with App Check. A local-only mode handles private rehearsal notes on a supported Chrome device. An opt-in hybrid mode prefers the on-device model and permits cloud fallback. The review desk displays the source returned by the SDK. Both modes feed the same validation and approval process. On November 21, two live Brave requests returned the cloud source. The opening change matched all four expected cues in 2.88 seconds. A separate first-song change matched only the camera cue in 2.1 seconds, and the caller approved revision 2. Local-only mode reported the local model unavailable on that installation. A successful Chrome on-device run and a crew pilot are still pending.
 
 **Built during the event**  New Web/Chrome app, original example rundown, import and export, review and selective approval, session revision history, Firebase integration, tests and hosting configuration. Codex assisted implementation. Include any additional teammates, assets or pre-existing work added before submission.
 
 ## Live acceptance record
 
-Use fresh revisions for each trial. These are expected outcomes, not measured results.
+Use fresh revisions for each trial. The table gives acceptance targets. Observed results are recorded above.
 
 | Test on actual hardware | Pass condition | Evidence to keep |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ Invite three willing event volunteers, ideally a caller, sound operator and came
 
 Use your own screen recording and voice, English narration/captions, original or cleared content, and a clean browser profile. Keep tokens, user accounts, notifications and backstage personal data out of frame.
 
-## Same-day run order · November 20 IST
+## Submission work order
 
 | Order | Work | Evidence required before moving on |
 | --- | --- | --- |
