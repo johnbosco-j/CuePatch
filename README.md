@@ -17,6 +17,7 @@ The example-note button fills the note field. Every proposal requires a successf
 - **Live caller** groups consecutive cues with the same time, including shows that cross midnight. Call a block to move every department in that block onto the next one. Undo returns the last block to standby.
 - **Cue timeline** opens a time block in the sheet. Filter by crew or search by cue ID, clock time or instruction. Crew exports always include the entire selected department.
 - **Crew handoff** records the caller’s acknowledgement after a crew receives its copy. View, print or download a sheet, then mark it handed off. Approving changes puts only the affected departments back into the reissue list.
+- **Edit** beside any cue makes a manual correction without a model. Saving records the before/after wording with the source **Caller edit** and marks the affected issued copy for reissue.
 - **Saved rehearsal notes** lets the caller explicitly retain up to 20 reusable notes per production. **Revision log** shows the accepted before/after instructions and approval time for new revisions. Older desk data keeps its original available history.
 - **Offline desk ready** means the local interface has been downloaded. After one successful preparation, opening the desk, calling cues, managing handoffs and exporting sheets work when the application server is unreachable. New AI requests on an offline device require a separately prepared, supported local model.
 

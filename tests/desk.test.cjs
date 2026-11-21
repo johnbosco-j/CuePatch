@@ -89,3 +89,15 @@ test('two desk tabs cannot silently overwrite the newer production state',async(
   assert.match(second('operation-status').textContent,/Another tab/);
   const persisted=JSON.parse(storage.get('cuepatch.show.v2.opening-night'));assert.equal(persisted.called.length,1);
 });
+
+test('the caller can correct a cue without Firebase and the correction uses the same revision and reissue workflow',async()=>{
+  const storage=new Map(),get=openDesk(storage,false);
+  await get('handoff-rows').children[0].children[1].children[1].onclick();
+  const row=get('rundown').children[0];row.children[2].onclick();
+  const form=row.children[1].children.at(-1),field=form.children[0].children[0];
+  field.value='Place the host at the centre lectern.';field.oninput();
+  await form.onsubmit({preventDefault(){}});
+  const saved=JSON.parse(storage.get('cuepatch.show.v2.opening-night'));
+  assert.equal(saved.history[0].source,'Caller edit');assert.equal(saved.rows[0].text,field.value);
+  assert.match(get('handoff-rows').children[0].children[0].children[1].textContent,/Reissue/);
+});

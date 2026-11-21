@@ -43,6 +43,40 @@ function download(name,text,type) {
   const url=URL.createObjectURL(new Blob([text],{type}));
   const a=el('a'); a.href=url; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+async function releaseEdits(chosen,source) {
+  if (!chosen.length || saving || busy) return false;
+  let rows;
+  try { rows=CueCore.commit(state.rows,chosen); }
+  catch(error){notice(error.message);return false;}
+  const change={source,ids:chosen.map(c=>c.id),approvedAt:new Date().toISOString(),
+    edits:chosen.map(({id,before,after})=>({id,before,after}))};
+  if (!await persist({...state,rows,history:[...state.history,change]})) return false;
+  $('calling-copy').hidden=true;clearReview();render();
+  notice('Revision '+revision()+' approved. Check the affected crew copies.');
+  status('Revision '+revision()+' saved. Select a crew and export its calling copy.');return true;
+}
+function editCue(row,body,trigger) {
+  if(busy || saving)return;
+  const editor=el('form',undefined,'cue-editor'), field=el('textarea'), label=el('label','Calling instruction');
+  const save=el('button','Save cue revision','primary'), cancel=el('button','Cancel','link');
+  const message=el('p','','hint');
+  field.value=row.text;field.maxLength=250;field.required=true;field.rows=3;label.append(field);
+  save.type='submit';save.disabled=true;cancel.type='button';
+  cancel.onclick=()=>{editor.remove();trigger.hidden=false;trigger.focus?.();};
+  field.oninput=()=>{save.disabled=!field.value.trim() || field.value.trim()===row.text;};
+  const showId=state.id;
+  editor.onsubmit=async event=>{
+    event.preventDefault();
+    const after=field.value.trim();
+    if(!after || after===row.text || after.length>250 || showId!==state.id)return;
+    save.disabled=true;
+    if(!await releaseEdits([{id:row.id,before:row.text,after}],'Caller edit')) {
+      save.disabled=false;message.textContent='Check the current instruction before saving again.';
+    }
+  };
+  const actions=el('div',undefined,'call-actions');actions.append(save,cancel);
+  editor.append(label,actions,message);body.append(editor);trigger.hidden=true;field.focus?.();
+}
 function render() {
   const words=state.name.trim().split(/\s+/);
   const last=words.pop();
@@ -87,7 +121,9 @@ function render() {
   $('rundown').replaceChildren(...visible.map(r=>{
     const row=el('article',undefined,'cue'+(updated.includes(r.id)?' changed':''));
     const body=el('div');body.append(el('span',r.id+' / '+r.crew+(updated.includes(r.id)?' / revised':''),'cue-meta'),el('p',r.text));
-    row.append(el('time',r.time),body);return row;
+    const edit=el('button','Edit','cue-edit');edit.type='button';edit.disabled=busy || saving;
+    edit.setAttribute('aria-label','Edit cue '+r.id);edit.onclick=()=>editCue(r,body,edit);
+    row.append(el('time',r.time),body,edit);return row;
   }));
   if(!visible.length) $('rundown').append(el('p','No cues match these filters.','ops-meta'));
   $('log').replaceChildren(...(state.history.length ? [...state.history].reverse().map((change,i)=>{
@@ -124,12 +160,7 @@ function review(patch,source,elapsed) {
   apply.onclick=async()=>{
     const chosen=patch.filter((p,i)=>inputs[i].checked);
     if (!pending || !chosen.length || saving || busy) return;
-    const next=CueCore.commit(state.rows,chosen);
-    const change={source,ids:chosen.map(c=>c.id),approvedAt:new Date().toISOString(),
-      edits:chosen.map(({id,before,after})=>({id,before,after}))};
-    if (!await persist({...state,rows:next,history:[...state.history,change]})) return;
-    notice('Revision '+revision()+' approved. Check the affected crew copies.');
-    $('calling-copy').hidden=true;clearReview();render();status('Revision '+revision()+' saved. Select a crew and export its calling copy.');
+    await releaseEdits(chosen,source);
   };
   root.append(apply);
 }

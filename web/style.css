@@ -254,3 +254,9 @@ footer a:hover {text-decoration:underline;text-underline-offset:3px}
   .printing-copy main,.printing-copy #desk,.printing-copy .sheet,.printing-copy #calling-copy{display:block!important;margin:0;padding:0;width:100%;border:0;box-shadow:none;background:white}
   .printing-copy #copy-text{font:12pt/1.7 ui-monospace,monospace;white-space:pre-wrap}
 }
+
+.cue{grid-template-columns:59px minmax(0,1fr) auto;align-items:start}
+.cue-edit{border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--muted);font:500 12px var(--sans);min-width:40px;min-height:30px;margin-top:1px}
+.cue-edit:hover{color:var(--deep);border-color:#c77b82}
+.cue-editor{padding:9px 0}.cue-editor textarea{margin:5px 0 8px}.cue-editor .primary{font-size:13px}
+@media(max-width:450px){.cue{grid-template-columns:45px minmax(0,1fr) auto;gap:5px}.cue-edit{min-width:35px}}
