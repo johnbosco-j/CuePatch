@@ -41,3 +41,19 @@ if (matchMedia('(pointer:fine) and (prefers-reduced-motion:no-preference)').matc
     },{passive:true});
   });
 }
+const offlineStatus=document.getElementById('offline-status');
+if (offlineStatus) {
+  if (!('serviceWorker' in navigator) || location.protocol==='file:') {
+    offlineStatus.textContent='Offline reload unavailable';
+  } else {
+    navigator.serviceWorker.register('./sw.js').then(registration=>{
+      const update=()=>{if(registration.active?.state==='activated') offlineStatus.textContent='Offline desk ready';};
+      const worker=registration.installing;
+      worker?.addEventListener('statechange',()=>{
+        if(worker.state==='redundant' && !registration.active) offlineStatus.textContent='Offline desk unavailable';
+        update();
+      });
+      update();navigator.serviceWorker.ready.then(update);
+    }).catch(()=>{offlineStatus.textContent='Offline desk unavailable';});
+  }
+}

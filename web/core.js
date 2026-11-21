@@ -26,7 +26,7 @@ const CueCore = (() => {
     const seen = new Set();
     return rows.map(row => {
       if (!row || !/^[A-Za-z0-9_-]{1,16}$/.test(String(row.id)) || typeof row.id !== 'string' || seen.has(row.id) ||
-          !/^([01]\d|2[0-3]):[0-5]\d$/.test(row.time) || typeof row.crew !== 'string' || !row.crew.trim() || row.crew.length>40 ||
+          typeof row.time !== 'string' || !/^([01]\d|2[0-3]):[0-5]\d$/.test(row.time) || typeof row.crew !== 'string' || !row.crew.trim() || row.crew.length>40 ||
           typeof row.text !== 'string' || !row.text.trim() || row.text.length>250) throw Error('Each cue needs a unique ID, a 24-hour HH:MM time, a crew and an instruction of up to 250 characters.');
       seen.add(row.id);
       return {id:row.id,time:row.time,crew:row.crew.trim(),text:row.text.trim()};

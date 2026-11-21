@@ -9,19 +9,19 @@
 <a class="skip" href="#desk">Skip to show desk</a>
 <header class="capsule">
   <a href="#top" class="brand" aria-label="CuePatch home"><span class="seal" aria-hidden="true">C</span>CuePatch</a>
-  <nav id="navigation" aria-label="Primary"><a href="#desk" aria-current="location">Show desk</a><a href="#history">Revisions</a><a href="checks.html">Live checks</a></nav><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button>
+  <nav id="navigation" aria-label="Primary"><a href="#desk" aria-current="location">Show desk</a><a href="#operations">Caller</a><a href="#history">Revisions</a><a href="checks.html">Live checks</a></nav><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button>
   <span class="network" id="network"></span>
 </header>
 <main>
   <section class="hero" aria-labelledby="title">
     <div class="hero-copy">
-      <p class="eyebrow"><span></span> Production desk</p>
+      <div class="workspace-head"><p class="eyebrow"><span></span> Production desk</p><label class="sr-only" for="show-switch">Saved production</label><select id="show-switch" title="Switch saved production"></select></div>
       <h1 id="title">Opening <em>night</em></h1>
       <p class="sub" id="sub">Campus showcase · Rehearsal sheet</p>
       <div class="hero-actions"><a class="action solid" href="#change">Review a change</a><a id="start-link" class="action quiet" href="#new-show">Start a show</a></div>
     </div>
-    <figure class="show-map" aria-label="Production overview">
-      <figcaption><span class="eyebrow">Show map</span><span id="map-time"></span></figcaption>
+    <figure class="show-map schedule-map" aria-label="Production timeline">
+      <figcaption><span class="eyebrow">Cue timeline</span><span id="map-time"></span></figcaption>
       <div class="orbit-plane" aria-hidden="true">
         <div class="orbit-grid"></div>
         <div class="ring round"><i></i></div><div class="ring sweep"><i></i></div>
@@ -29,9 +29,27 @@
         <div class="axis horizontal"></div><div class="axis vertical"></div>
         <div class="orbit-core"><span></span></div>
       </div>
+      <div id="time-rail" class="time-rail" role="group" aria-label="Inspect scheduled blocks"></div>
       <div class="map-footer"><span id="counts"></span><strong id="rev">REV 01</strong></div>
     </figure>
   </section>
+  <section id="operations" class="operations" aria-label="Show operations">
+    <section class="ops-panel caller" aria-labelledby="caller-heading">
+      <div class="ops-top"><p class="eyebrow"><span></span> Live caller</p><span id="call-progress" class="counter"></span></div>
+      <h2 id="caller-heading">On <em>standby</em></h2>
+      <div class="block-line"><strong id="block-time"></strong><span id="block-summary"></span></div>
+      <ul id="block-cues" class="block-list" aria-label="Standby instructions"></ul>
+      <div class="call-actions"><button class="primary" id="call-block">Call block</button><button class="example" id="undo-call">Undo last call</button></div>
+      <p id="next-block" class="ops-meta"></p>
+    </section>
+    <section class="ops-panel handoff" aria-labelledby="handoff-heading">
+      <div class="ops-top"><p class="eyebrow"><span></span> Crew copies</p><span id="handoff-count" class="counter"></span></div>
+      <h2 id="handoff-heading">Crew <em>handoff</em></h2>
+      <div id="handoff-rows"></div>
+      <p class="ops-meta">Record each handoff after the crew receives its copy.</p>
+    </section>
+  </section>
+  <p id="operation-status" class="operation-status" role="status" aria-live="polite"></p>
   <div class="desk" id="desk">
     <section class="panel sheet" aria-labelledby="sheet-title">
       <div class="bar"><h2 id="sheet-title">Cue <em>sheet</em></h2><label class="import">Import JSON<input type="file" id="file" accept=".json,application/json"></label></div>
@@ -42,7 +60,9 @@
         <button class="primary" id="create-show">Create rundown</button><p id="form-error" role="status"></p>
       </form></details>
       <div class="filters"><label for="crew">Crew</label><select id="crew"></select><button id="export" class="link">Export sheet</button></div>
-      <section id="calling-copy" hidden aria-label="Crew calling copy"><h3>Calling copy</h3><pre id="copy-text"></pre><button type="button" id="save-sheet" class="link">Download text file</button><button type="button" id="close-copy" class="link">Close copy</button></section>
+      <section id="calling-copy" hidden aria-label="Crew calling copy"><h3>Calling copy</h3><pre id="copy-text"></pre><button type="button" id="save-sheet" class="link">Download text file</button><button type="button" id="print-sheet" class="link">Print calling copy</button><button type="button" id="close-copy" class="link">Close copy</button></section>
+      <div class="cue-search"><label for="cue-search">Find a cue</label><input id="cue-search" type="search" placeholder="Cue ID, time, crew or instruction"><span id="visible-count"></span></div>
+      <button id="clear-time" class="link" hidden>Show all time blocks</button>
       <div class="crew-rail" id="crew-rail" aria-label="Filter cue sheet by crew" role="group"></div><div id="rundown"></div>
     </section>
     <section class="panel change" id="change" aria-labelledby="change-title">
@@ -51,11 +71,14 @@
       <label for="mode">Inference mode</label><select id="mode"><option value="private">On-device only</option><option value="hybrid">On-device with cloud fallback</option></select>
       <p id="privacy" class="hint"></p><button id="analyse" class="primary">Find affected cues</button>
       <button id="example" class="example">Load a rehearsal note</button>
+      <details class="note-shelf"><summary>Saved rehearsal notes <span id="template-count"></span></summary>
+        <button id="save-template" class="link">Save current note on this device</button><div id="template-list"></div>
+      </details>
       <p id="status" class="receipt" role="status" aria-live="polite"></p><div id="review"></div>
     </section>
   </div>
-  <section class="history" id="history"><div class="bar"><h2>Revision <em>log</em></h2><span id="session">This browser tab</span></div><div id="log"></div></section>
-  <footer><span class="brand-sign">CuePatch <em>by Riven</em></span><a href="checks.html">Test live Firebase inference</a><button id="download" class="link">Download rundown JSON</button></footer>
+  <section class="history" id="history"><div class="bar"><h2>Revision <em>log</em></h2><div class="local-status"><span id="session">Saved on this device</span><span id="offline-status">Preparing offline desk</span></div></div><div id="log"></div></section>
+  <footer><span class="brand-sign">CuePatch <em>by Riven</em></span><a href="checks.html">Test live Firebase inference</a><button id="backup" class="link">Back up production</button><button id="download" class="link">Download rundown JSON</button></footer>
 </main>
-<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="app.js"></script><script src="navigation.js"></script>
+<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="production.js"></script><script src="app.js"></script><script src="navigation.js"></script>
 </body></html>

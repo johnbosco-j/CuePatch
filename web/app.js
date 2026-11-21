@@ -5,22 +5,39 @@ const el = (tag,text,cls) => {
   if(cls) node.className=cls;
   return node;
 };
-const stateKey = 'cuepatch.desk.v1';
-let state = {rows:CueCore.sample,history:[],name:'Opening night',sample:true};
-try {
-  const saved=JSON.parse(sessionStorage.getItem(stateKey));
-  if (saved && Array.isArray(saved.history) && typeof saved.name==='string') {
-    state={...saved,rows:CueCore.validateSheet(saved.rows)};
-  }
-} catch {}
+const book = CueProduction.open();
+let state;
+try { state=book.initial(); }
+catch { state=CueProduction.create('Opening night',CueCore.sample,true); $('session').textContent='Storage unavailable · export a backup'; }
+let selectedBlock=null;
 let pending=null;
 let busy=false;
+let saving=false;
 const revision=()=>state.history.length+1;
+const atTime=stamp=>new Date(stamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 function status(message) { $('status').textContent=message; }
-function persist(next) {
-  try { sessionStorage.setItem(stateKey,JSON.stringify(next)); }
-  catch { $('session').textContent='In memory · export before closing'; }
-  state=next;
+function notice(message) { $('operation-status').textContent=message; }
+function selectShow(show) {
+  state=show;book.remember(show.id);
+  selectedBlock=null;$('cue-search').value='';$('crew').value='';$('note').value='';$('calling-copy').hidden=true;
+  clearReview();status('');render();
+}
+async function persist(next, expected=state.version) {
+  if (saving) return false;
+  saving=true;
+  const previousId=state.id;
+  const activeVersion=state.version;
+  try {
+    const saved=await book.save(next,expected);
+    if(state.id!==previousId || state.version!==activeVersion) return false;
+    state=saved;return true;
+  } catch(error) {
+    let latest;
+    try { latest=book.get(state.id); } catch {}
+    if(latest && latest.version!==state.version) selectShow(latest);
+    notice(error.name==='QuotaExceededError'?'Device storage is full. Back up this production before making further changes.':error.message);
+    return false;
+  } finally {saving=false;}
 }
 function download(name,text,type) {
   const url=URL.createObjectURL(new Blob([text],{type}));
@@ -34,7 +51,7 @@ function render() {
   $('sub').textContent=state.sample?'Campus showcase · Rehearsal sheet':'Production rundown';
   const crew=$('crew').value;
   const crews=[...new Set(state.rows.map(r=>r.crew))];
-  const times=state.rows.map(row=>row.time).sort();
+  const times=state.rows.map(row=>row.time);
   $('map-time').textContent=times[0]===times.at(-1) ? times[0] : times[0]+' – '+times.at(-1);
   $('counts').textContent=state.rows.length+' '+(state.rows.length===1?'cue':'cues')+' / '+crews.length+' '+(crews.length===1?'crew':'crews');
   const options=['',...crews].map(s=>{const opt=el('option',s||'All crews');opt.value=s;return opt;});
@@ -51,16 +68,39 @@ function render() {
     if($('crew-rail').dataset) $('crew-rail').dataset.crews=JSON.stringify(crews);
   }
   for(const chip of $('crew-rail').children) chip.setAttribute('aria-pressed',String(chip.value===$('crew').value));
-  const visible=state.rows.filter(r=>!$('crew').value || r.crew===$('crew').value);
+  const blocks=CueProduction.blocks(state.rows);
+  const candidates=selectedBlock===null ? state.rows : (blocks[selectedBlock]?.rows || []);
+  const search=$('cue-search').value.trim().toLowerCase();
+  const visible=candidates.filter(r=>(!$('crew').value || r.crew===$('crew').value) &&
+    (!search || [r.id,r.time,r.crew,r.text].some(value=>value.toLowerCase().includes(search))));
+  $('visible-count').textContent=visible.length+' / '+state.rows.length+' cues';
+  $('clear-time').hidden=selectedBlock===null;
+  $('clear-time').textContent=selectedBlock===null?'Show all time blocks':'Clear '+blocks[selectedBlock].time+' filter';
+  $('time-rail').replaceChildren(...blocks.map((block,index)=>{
+    const tick=el('button',undefined,'schedule-tick');
+    tick.setAttribute('aria-label','Inspect '+block.time+' block '+(index+1));
+    tick.setAttribute('aria-pressed',String(selectedBlock===index));
+    tick.append(el('strong',block.time),el('span',index<state.called.length?'Called':index===state.called.length?'Standby':block.rows.length+' cues'));
+    tick.onclick=()=>{selectedBlock=index;$('crew').value='';$('cue-search').value='';render();$('sheet-title').scrollIntoView?.({block:'start'});};return tick;
+  }));
   const updated=state.history.at(-1)?.ids || [];
   $('rundown').replaceChildren(...visible.map(r=>{
     const row=el('article',undefined,'cue'+(updated.includes(r.id)?' changed':''));
     const body=el('div');body.append(el('span',r.id+' / '+r.crew+(updated.includes(r.id)?' / revised':''),'cue-meta'),el('p',r.text));
     row.append(el('time',r.time),body);return row;
   }));
-  $('log').replaceChildren(...(state.history.length ? [...state.history].reverse().map((r,i)=>{
-    return el('div','Rev '+(revision()-i)+' · '+r.source+' · '+r.ids.join(', '),'logrow');
+  if(!visible.length) $('rundown').append(el('p','No cues match these filters.','ops-meta'));
+  $('log').replaceChildren(...(state.history.length ? [...state.history].reverse().map((change,i)=>{
+    const record=el('details',undefined,'revision-detail');
+    const summary=el('summary','Rev '+(revision()-i)+' · '+change.ids.length+' '+(change.ids.length===1?'cue':'cues')+' · '+change.source);
+    record.append(summary,el('p',(change.approvedAt?'Approved '+new Date(change.approvedAt).toLocaleString()+' · ':'')+change.ids.join(', ')));
+    for(const edit of change.edits || []) {
+      const diff=el('div',undefined,'stored-diff');
+      diff.append(el('strong',edit.id),el('del',edit.before),el('ins',edit.after));record.append(diff);
+    }
+    return record;
   }) : [el('p','Opening copy. Approved changes will appear here.')]));
+  renderOperations();
   $('analyse').disabled=busy || !CueAI.ready() || !$('note').value.trim();
   $('file').disabled=busy; $('mode').disabled=busy; $('note').disabled=busy;
   $('example').hidden=!state.sample || revision()!==1;
@@ -81,11 +121,14 @@ function review(patch,source,elapsed) {
   });
   const apply=el('button','Approve selected cues','primary');apply.disabled=true;
   inputs.forEach(input=>input.onchange=()=>{apply.disabled=!inputs.some(i=>i.checked);});
-  apply.onclick=()=>{
+  apply.onclick=async()=>{
     const chosen=patch.filter((p,i)=>inputs[i].checked);
-    if (!pending || !chosen.length) return;
+    if (!pending || !chosen.length || saving || busy) return;
     const next=CueCore.commit(state.rows,chosen);
-    persist({...state,rows:next,history:[...state.history,{source,ids:chosen.map(c=>c.id)}]});
+    const change={source,ids:chosen.map(c=>c.id),approvedAt:new Date().toISOString(),
+      edits:chosen.map(({id,before,after})=>({id,before,after}))};
+    if (!await persist({...state,rows:next,history:[...state.history,change]})) return;
+    notice('Revision '+revision()+' approved. Check the affected crew copies.');
     $('calling-copy').hidden=true;clearReview();render();status('Revision '+revision()+' saved. Select a crew and export its calling copy.');
   };
   root.append(apply);
@@ -104,14 +147,20 @@ $('note').oninput=()=>{clearReview();status(CueAI.reason());render();};
 $('analyse').onclick=async()=>{
   if (busy || !CueAI.ready()) return;
   clearReview();busy=true;render();
+  const requested=state;
   let active=true;
   const progress=message=>{if(active) status(message);};
   try {
     const result=await CueAI.analyse(state.rows,$('note').value.trim(),$('mode').value,progress);
+    if (requested.id!==state.id || requested.version!==state.version) {
+      status('The show changed during analysis. Run the note on the current revision.');return;
+    }
     review(result.patch,'Firebase · '+result.source,result.elapsed);
   } catch (e) { status('Analysis stopped. '+(e instanceof SyntaxError?'The model returned unreadable JSON. Try a shorter note.':e.message)); }
   finally {active=false;busy=false;render();}
 };
+$('cue-search').oninput=render;
+$('clear-time').onclick=()=>{selectedBlock=null;render();};
 $('crew').onchange=()=>{$('calling-copy').hidden=true;render();};
 function crewCopy() {
   const crew=$('crew').value;
@@ -124,36 +173,122 @@ $('export').onclick=()=>{
   $('calling-copy').hidden=false;
 };
 $('save-sheet').onclick=()=>download('cuepatch-rev-'+revision()+'.txt',crewCopy(),'text/plain;charset=utf-8');
+$('print-sheet').onclick=()=>{
+  $('copy-text').textContent=crewCopy();
+  document.body.classList.add('printing-copy');
+  try { window.print(); } finally { document.body.classList.remove('printing-copy'); }
+};
 $('close-copy').onclick=()=>{$('calling-copy').hidden=true;};
-function openRundown(name,rows) {
-  if((!state.sample || state.history.length) && !confirm('Replace this tab’s current rundown? Export it first if you need to keep it.')) return false;
-  persist({rows,history:[],name,sample:false});
-  $('crew').value='';$('calling-copy').hidden=true;clearReview();$('note').value='';
-  status('Rundown ready. Enter a rehearsal change.');render();
+async function openProduction(next) {
+  if (!await persist(next,null)) return false;
+  selectShow(state);notice('Production saved. Previous shows are available in Saved production.');
   return true;
 }
-$('show-form').onsubmit=event=>{
-  event.preventDefault();
-  if (busy) return;
+$('show-form').onsubmit=async event=>{
+  event.preventDefault();if(busy || saving) return;
   try {
     const name=$('show-name').value.trim();
     if(!name) throw Error('Enter a show name.');
-    const rows=CueCore.parseCueLines($('show-cues').value);
-    if(openRundown(name,rows)){ $('show-form').reset();$('new-show').open=false; }
+    const next=CueProduction.create(name,CueCore.parseCueLines($('show-cues').value));
+    if(await openProduction(next)){ $('show-form').reset();$('new-show').open=false; }
     $('form-error').textContent='';
   } catch(error){ $('form-error').textContent=error.message; }
 };
+$('backup').onclick=()=>download('cuepatch-production-r'+revision()+'.json',JSON.stringify(CueProduction.backup(state),null,2),'application/json');
 $('download').onclick=()=>download('rundown.json',JSON.stringify(state.rows,null,2),'application/json');
 $('file').onchange=async()=>{
   const file=$('file').files[0];if (!file) return;
   busy=true;render();
   try {
-    if(file.size>100000) throw Error('Use a rundown file smaller than 100 KB.');
-    const rows=CueCore.validateSheet(JSON.parse(await file.text()));
-    openRundown(file.name.replace(/\.json$/i,'').slice(0,60)||'Imported rundown',rows);
+    if(file.size>5_000_000) throw Error('Use a rundown or backup smaller than 5 MB.');
+    const parsed=JSON.parse(await file.text());
+    const next=Array.isArray(parsed)
+      ? CueProduction.create(file.name.replace(/\.json$/i,'').slice(0,60)||'Imported rundown',CueCore.validateSheet(parsed))
+      : CueProduction.readBackup(parsed);
+    await openProduction(next);
   } catch(e) {status(e.message);}
   finally {busy=false;$('file').value='';render();}
 };
+function renderOperations() {
+  const disabled=busy || saving;
+  let shows=[];try { shows=book.list(); } catch {}
+  if(!shows.some(show=>show.id===state.id)) shows.push({id:state.id,name:state.name});
+  $('show-switch').replaceChildren(...shows.map(show=>{
+    const item=el('option',show.name);item.value=show.id;return item;
+  }));
+  $('show-switch').value=state.id;$('show-switch').disabled=disabled;
+  const blocks=CueProduction.blocks(state.rows);
+  const index=state.called.length;
+  const block=blocks[index];
+  $('call-progress').textContent=index+' / '+blocks.length+' called';
+  $('block-time').textContent=block?.time || 'Complete';
+  $('block-summary').textContent=block ? block.rows.length+' '+(block.rows.length===1?'cue':'cues')+' on standby' : 'All scheduled blocks called';
+  $('block-cues').replaceChildren(...(block?.rows || []).map(row=>{
+    const line=el('li');line.append(el('span',row.id,'cue-id'),el('strong',row.crew),el('span',row.text));return line;
+  }));
+  $('call-block').disabled=disabled || !block;
+  $('call-block').textContent=block?'Call '+block.time+' block':'All blocks called';
+  $('undo-call').disabled=disabled || !index;
+  $('next-block').textContent=blocks[index+1]?'Next on standby · '+blocks[index+1].time:
+    block?'Final scheduled block':state.called.length?'Last called at '+atTime(state.called.at(-1)):'';
+  const crews=CueProduction.crewStatus(state);
+  $('handoff-count').textContent=crews.filter(c=>c.current).length+' / '+crews.length+' current';
+  $('handoff-rows').replaceChildren(...crews.map(item=>{
+    const row=el('div',undefined,'handoff-row');
+    const identity=el('div');identity.append(el('strong',item.crew),el('span',item.current?'Current · handed off R'+item.previous.revision:
+      item.previous?'Reissue · last handed off R'+item.previous.revision:'Awaiting first copy',item.current?'delivered':'not-issued'));
+    const actions=el('div',undefined,'crew-actions');const view=el('button','View copy','link');
+    view.setAttribute('aria-label','View '+item.crew+' copy');
+    view.onclick=()=>{selectedBlock=null;$('cue-search').value='';$('crew').value=item.crew;$('crew').onchange();$('export').onclick();$('calling-copy').scrollIntoView?.({block:'center'});};
+    actions.append(view);
+    if(!item.current) {
+      const mark=el('button','Mark handed off','link');mark.disabled=disabled;mark.setAttribute('aria-label','Mark '+item.crew+' handed off');
+      mark.onclick=async()=>{
+        if(busy || saving) return;
+        const handoffs=[...state.handoffs.filter(h=>h.crew!==item.crew),{crew:item.crew,revision:revision(),at:new Date().toISOString()}];
+        if(await persist({...state,handoffs})){render();notice(item.crew+' handoff recorded for revision '+revision()+'.');}
+      };actions.append(mark);
+    }
+    row.append(identity,actions);return row;
+  }));
+  $('template-count').textContent='('+state.templates.length+')';
+  const note=$('note').value.trim();
+  $('save-template').disabled=disabled || !note || state.templates.includes(note) || state.templates.length>=20;
+  $('template-list').replaceChildren(...state.templates.map(note=>{
+    const row=el('div',undefined,'saved-note');
+    const use=el('button',note,'template-use');use.disabled=disabled;
+    use.onclick=()=>{$('note').value=note;$('note').oninput();$('note').focus?.();};
+    const remove=el('button','Remove','link');remove.disabled=disabled;
+    remove.onclick=async()=>{if(await persist({...state,templates:state.templates.filter(value=>value!==note)})){render();notice('Saved note removed.');}};
+    row.append(use,remove);return row;
+  }));
+}
+$('show-switch').onchange=()=>{
+  const selected=book.get($('show-switch').value);if(!selected || busy || saving)return;
+  selectShow(selected);notice('Opened '+selected.name+'.');
+};
+$('call-block').onclick=async()=>{
+  const block=CueProduction.blocks(state.rows)[state.called.length];
+  if(!block || busy || saving)return;
+  if(await persist({...state,called:[...state.called,new Date().toISOString()]})){render();notice('Called '+block.time+' · '+block.rows.map(r=>r.id).join(', '));}
+};
+$('undo-call').onclick=async()=>{
+  if(!state.called.length || busy || saving)return;
+  if(await persist({...state,called:state.called.slice(0,-1)})){render();notice('Last call undone. The block is on standby again.');}
+};
+$('save-template').onclick=async()=>{
+  const note=$('note').value.trim();
+  if(busy || saving || !note || state.templates.includes(note) || state.templates.length>=20)return;
+  if(await persist({...state,templates:[...state.templates,note]})){render();notice('Reusable note saved with this production.');}
+};
+window.addEventListener('storage',event=>{
+  if(book.isShowKey(event.key,state.id)){
+    const latest=book.get(state.id);
+    if(latest && latest.version!==state.version){
+      state=latest;clearReview();$('calling-copy').hidden=true;render();notice('Updated from another tab. Review the current revision before approving.');
+    }
+  } else if(event.key?.startsWith('cuepatch.show.v2.')) renderOperations();
+});
 function network() { $('network').textContent=navigator.onLine?'Online':'Offline'; }
 window.addEventListener('online',network);window.addEventListener('offline',network);
 network();modeText();render();

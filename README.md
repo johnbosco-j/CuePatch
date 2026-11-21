@@ -10,11 +10,23 @@ Open the deployed show desk in a desktop browser. Choose **Start a show**, enter
 
 Enter a rehearsal change. For a supported, prepared Chrome device, choose **On-device only**. In Brave and other online browsers without the local model, choose **On-device with cloud fallback** to allow Firebase to process the sheet. Click **Find affected cues**. Review each proposed edit against its highlighted quote and select only the changes to issue. **Approve selected cues** creates a revision. Filter by crew, choose **Export sheet** to inspect that department’s calling copy and **Download text file** to save it.
 
-The example-note button fills the note field. Every proposal requires a successful Firebase response. The tab retains its approved revision across refreshes. Use **Download rundown JSON** to carry the approved cue list into another session. Cue IDs, times and crew assignments remain fixed when approving generated instruction changes.
+The example-note button fills the note field. Every proposal requires a successful Firebase response. The dashboard saves productions in this browser profile. **Saved production** switches shows. **Download rundown JSON** exports the row list for spreadsheets or another CuePatch desk. **Back up production** includes call progress, crew handoffs, saved notes and revision details. Importing a backup creates a separate production. Cue IDs, times and crew assignments remain fixed when approving generated instruction changes.
+
+## Run a show
+
+- **Live caller** groups consecutive cues with the same time, including shows that cross midnight. Call a block to move every department in that block onto the next one. Undo returns the last block to standby.
+- **Cue timeline** opens a time block in the sheet. Filter by crew or search by cue ID, clock time or instruction. Crew exports always include the entire selected department.
+- **Crew handoff** records the caller’s acknowledgement after a crew receives its copy. View, print or download a sheet, then mark it handed off. Approving changes puts only the affected departments back into the reissue list.
+- **Saved rehearsal notes** lets the caller explicitly retain up to 20 reusable notes per production. **Revision log** shows the accepted before/after instructions and approval time for new revisions. Older desk data keeps its original available history.
+- **Offline desk ready** means the local interface has been downloaded. After one successful preparation, opening the desk, calling cues, managing handoffs and exporting sheets work when the application server is unreachable. New AI requests on an offline device require a separately prepared, supported local model.
+
+## How earlier winners informed the dashboard
+
+Google awarded Trail best hybrid web app in its 2025 Chrome challenge. Its offline trip preparation informed the cached venue desk. Orma’s workspaces and retrieval informed named productions and inspectable revisions. Opale’s reusable prompts informed the caller’s opt-in note shelf. These are original implementations for stage crews. [2025 official results](https://developer.chrome.com/blog/ai-challenge-winners-2025) · [Prior official results](https://developer.chrome.com/blog/ai-challenge-winners) · [Trail](https://devpost.com/software/trail-2ia5xw) · [Orma](https://devpost.com/software/orma) · [Opale](https://devpost.com/software/opale)
 
 ## Observed on November 21, 2026
 
-Two live requests from Brave used the dedicated project with App Check. Moving the opening host to the lectern returned precisely the four opening cues in 2.88 seconds. A new camera note about the first song returned VC-02 alone in 2.1 seconds. The caller approved that edit as revision 2. Brave reported the on-device model unavailable in local-only mode. A successful on-device/offline run on supported Chrome still needs hardware verification.
+Live requests from Brave used the dedicated project with App Check. Moving the opening host to the lectern returned precisely the four opening cues in 2.88 seconds. A new camera note about the first song returned VC-02 alone in 2.1 seconds. The caller approved that edit as revision 2. Brave reported the on-device model unavailable in local-only mode. The redesigned app also returned all four opening edits in 2.5 seconds, VC-02 alone in 2.35 seconds, and no edits for an unchanged rehearsal. With a local preview server subsequently stopped, Brave reopened the cached desk, called the 18:00 block, recorded a Lighting handoff and opened its two-cue calling copy. Successful local-model inference on supported Chrome still needs hardware verification.
 
 ## Interface
 
@@ -33,7 +45,7 @@ python3 -m http.server 8080 --directory dist
 ```
 
 5. Open http://localhost:8080 in desktop Chrome. Follow the Firebase Web guide and event FAQ to enable the supported built-in model for your Chrome channel. Allow the initial model download to complete online. Enter a rehearsal change and select **Find affected cues**.
-6. For the on-device rehearsal, initialise the model and complete a live local run while online first. Leave the tab open, take the browser offline and try a different note. Offline cold launch and offline model installation are outside this build. For the fallback test use a second online Chrome profile/device without a usable local model, choose **On-device with cloud fallback**, and run the same note. Record the actual source returned by the SDK. Network status at the top describes browser connectivity only.
+6. For the on-device rehearsal, initialise the model and complete a live local run while online first. Leave the tab open, take the browser offline and try a different note. The saved desk can reopen offline. Restarting AI offline also depends on availability of the SDK and local model on that client. For the fallback test use a second online Chrome profile/device without a usable local model, choose **On-device with cloud fallback**, and run the same note. Record the actual source returned by the SDK. Network status at the top describes browser connectivity only.
 7. For hosting, build with the production demo configuration, then use the authenticated Firebase CLI command below. Replace PROJECT_ID with the dedicated project ID. Verify App Check and the live URL in a clean judging browser. Keep hosting and model access available through December 16 PT.
 
 ```sh
@@ -55,7 +67,7 @@ prepare the checks page while online, then disconnect with that tab open.
 
 The UI reads `response.inferenceSource` from each completed request and measures elapsed time including model preparation. Invalid JSON, invented evidence, unknown IDs and repeated IDs stop the revision. An exact quote establishes a source for review. A person still checks whether the proposed instruction is justified and whether the model missed another cue.
 
-The tab stores the current rundown, revision numbers, changed IDs and source labels in session storage. Raw rehearsal notes and unapproved proposals are held in page memory. A revised instruction can contain text derived from the note. Exported files contain the approved instructions.
+The browser stores each production locally, including approved instructions, call progress, handoff records and before/after revision history. Unapproved AI suggestions and raw notes stay in page memory unless the caller explicitly saves a reusable note. Production backups include those saved notes. This is a single-caller device workspace. Handoff records are manual acknowledgements. Separate tabs use per-show write locks and version checks. Cloud fallback sends the cue rows and current note to Firebase only when selected.
 
 ## Tests
 
