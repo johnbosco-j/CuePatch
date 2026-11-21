@@ -1,20 +1,61 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#1c2522"><title>CuePatch · Show desk</title><link rel="stylesheet" href="style.css"></head><body>
-<header><a href="#" class="brand">▥ &nbsp;CuePatch</a><span>SHOW CONTROL</span><span id="network"></span></header>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f7f8"><title>CuePatch · Show desk</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body id="top">
+<a class="skip" href="#desk">Skip to show desk</a>
+<header class="capsule">
+  <a href="#top" class="brand" aria-label="CuePatch home"><span class="seal" aria-hidden="true">C</span>CuePatch</a>
+  <nav id="navigation" aria-label="Primary"><a href="#desk" aria-current="location">Show desk</a><a href="#history">Revisions</a><a href="checks.html">Live checks</a></nav><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button>
+  <span class="network" id="network"></span>
+</header>
 <main>
-<section class="mast"><div><div class="eyebrow">Production desk</div><h1 id="title">Opening night</h1><p id="sub">Campus showcase · Rehearsal sheet</p></div><div class="revision"><small>CALLING COPY</small><strong id="rev">REV 01</strong></div></section>
-<div class="desk"><section class="sheet"><div class="bar"><h2>Cue sheet</h2><label class="import">Import JSON<input type="file" id="file" accept=".json,application/json"></label></div>
-<details id="new-show"><summary>Start a show</summary><form id="show-form">
-<label for="show-name">Show name</label><input id="show-name" required maxlength="60" placeholder="e.g. Campus arts evening">
-<label for="show-cues">Cue list</label><p class="hint" id="format">Paste four columns from a spreadsheet or type one cue per line. Separate the ID, time, crew and instruction with tabs or vertical bars.</p>
-<textarea id="show-cues" required rows="4" aria-describedby="format" placeholder="CAM-1 | 18:00 | Camera | Frame the host at the lectern."></textarea>
-<button class="primary" id="create-show">Create rundown</button><p id="form-error" role="status"></p></form></details>
-<div class="filters"><label for="crew">Crew</label><select id="crew"></select><button id="export" class="link">Export sheet ↓</button></div><section id="calling-copy" hidden aria-label="Crew calling copy"><h3>Calling copy</h3><pre id="copy-text"></pre><button type="button" id="save-sheet" class="link">Download text file ↓</button><button type="button" id="close-copy" class="link">Close copy</button></section><div id="rundown"></div></section>
-<section class="change"><div class="bar"><h2>Change desk</h2><span class="lamp" aria-hidden="true"></span></div>
-<label for="note">Rehearsal note</label><textarea id="note" maxlength="1500" rows="5" placeholder="What changed, and which part of the show does it affect?"></textarea>
-<label for="mode">Inference mode</label><select id="mode"><option value="private">On-device only</option><option value="hybrid">On-device with cloud fallback</option></select>
-<p id="privacy"></p><button id="analyse" class="primary">Find affected cues →</button>
-<button id="example" class="example">Load a rehearsal note</button>
-<p id="status" role="status" aria-live="polite"></p><div id="review"></div></section></div>
-<section class="history"><div class="bar"><h2>Revision log</h2><span id="session">This browser</span></div><div id="log"></div></section>
-<footer><a href="checks.html">Test live Firebase inference</a><button id="download" class="link">Download rundown JSON ↓</button></footer></main>
-<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="app.js"></script></body></html>
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-copy">
+      <p class="eyebrow"><span></span> Production desk</p>
+      <h1 id="title">Opening <em>night</em></h1>
+      <p class="sub" id="sub">Campus showcase · Rehearsal sheet</p>
+      <div class="hero-actions"><a class="action solid" href="#change">Review a change</a><a id="start-link" class="action quiet" href="#new-show">Start a show</a></div>
+    </div>
+    <figure class="show-map" aria-label="Production overview">
+      <figcaption><span class="eyebrow">Show map</span><span id="map-time"></span></figcaption>
+      <div class="orbit-plane" aria-hidden="true">
+        <div class="orbit-grid"></div>
+        <div class="ring round"><i></i></div><div class="ring sweep"><i></i></div>
+        <div class="ring cross"><i></i></div><div class="ring radial"></div>
+        <div class="axis horizontal"></div><div class="axis vertical"></div>
+        <div class="orbit-core"><span></span></div>
+      </div>
+      <div class="map-footer"><span id="counts"></span><strong id="rev">REV 01</strong></div>
+    </figure>
+  </section>
+  <div class="desk" id="desk">
+    <section class="panel sheet" aria-labelledby="sheet-title">
+      <div class="bar"><h2 id="sheet-title">Cue <em>sheet</em></h2><label class="import">Import JSON<input type="file" id="file" accept=".json,application/json"></label></div>
+      <details id="new-show"><summary>Start a show</summary><form id="show-form">
+        <label for="show-name">Show name</label><input id="show-name" required maxlength="60" placeholder="Campus arts evening">
+        <label for="show-cues">Cue list</label><p class="hint" id="format">Paste four spreadsheet columns, or separate the ID, time, crew and instruction with vertical bars. Enter one cue per line.</p>
+        <textarea id="show-cues" required rows="4" aria-describedby="format" placeholder="CAM-1 | 18:00 | Camera | Frame the host at the lectern."></textarea>
+        <button class="primary" id="create-show">Create rundown</button><p id="form-error" role="status"></p>
+      </form></details>
+      <div class="filters"><label for="crew">Crew</label><select id="crew"></select><button id="export" class="link">Export sheet</button></div>
+      <section id="calling-copy" hidden aria-label="Crew calling copy"><h3>Calling copy</h3><pre id="copy-text"></pre><button type="button" id="save-sheet" class="link">Download text file</button><button type="button" id="close-copy" class="link">Close copy</button></section>
+      <div class="crew-rail" id="crew-rail" aria-label="Filter cue sheet by crew" role="group"></div><div id="rundown"></div>
+    </section>
+    <section class="panel change" id="change" aria-labelledby="change-title">
+      <div class="bar"><h2 id="change-title">Change <em>desk</em></h2></div>
+      <label for="note">Rehearsal note</label><textarea id="note" maxlength="1500" rows="4" placeholder="What changed, and which part of the show does it affect?"></textarea>
+      <label for="mode">Inference mode</label><select id="mode"><option value="private">On-device only</option><option value="hybrid">On-device with cloud fallback</option></select>
+      <p id="privacy" class="hint"></p><button id="analyse" class="primary">Find affected cues</button>
+      <button id="example" class="example">Load a rehearsal note</button>
+      <p id="status" class="receipt" role="status" aria-live="polite"></p><div id="review"></div>
+    </section>
+  </div>
+  <section class="history" id="history"><div class="bar"><h2>Revision <em>log</em></h2><span id="session">This browser tab</span></div><div id="log"></div></section>
+  <footer><span class="brand-sign">CuePatch <em>by Riven</em></span><a href="checks.html">Test live Firebase inference</a><button id="download" class="link">Download rundown JSON</button></footer>
+</main>
+<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="app.js"></script><script src="navigation.js"></script>
+</body></html>

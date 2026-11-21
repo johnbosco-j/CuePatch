@@ -20,7 +20,7 @@ One backstage change can make four crew sheets wrong. CuePatch finds affected cu
 
 CuePatch uses the Firebase AI Logic Web SDK with App Check. A local-only mode handles private rehearsal notes on a supported Chrome device. An opt-in hybrid mode prefers the on-device model and permits cloud fallback. The review desk displays the source returned by the SDK. Both modes feed the same validation and approval process. On November 21, two live Brave requests returned the cloud source. The opening change matched all four expected cues in 2.88 seconds. A separate first-song change matched only the camera cue in 2.1 seconds, and the caller approved revision 2. Local-only mode reported the local model unavailable on that installation. A successful Chrome on-device run and a crew pilot are still pending.
 
-**Built during the event**  New Web/Chrome app, original example rundown, import and export, review and selective approval, session revision history, Firebase integration, tests and hosting configuration. Codex assisted implementation. Include any additional teammates, assets or pre-existing work added before submission.
+**Built during the event**  New Web/Chrome app, original example rundown, import and export, review and selective approval, session revision history, Firebase integration, tests and hosting configuration. The participant’s Riven site informed the visual design. Its product content and robot assets are outside CuePatch. Codex assisted implementation. Include any additional teammates, assets or pre-existing work added before submission.
 
 ## Live acceptance record
 

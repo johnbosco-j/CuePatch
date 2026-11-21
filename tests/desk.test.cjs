@@ -7,6 +7,7 @@ const path=require('node:path');
 const src=name=>fs.readFileSync(path.join(__dirname,'../web',name),'utf8');
 class Element {
   constructor(tag,text='') { this.tag=tag; this.textContent=text; this.children=[]; this.value=''; }
+  setAttribute(key,value) { this[key]=value; }
   append(...children) { this.children.push(...children); }
   replaceChildren(...children) { this.children=children; }
 }

@@ -27,12 +27,30 @@ function download(name,text,type) {
   const a=el('a'); a.href=url; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function render() {
-  $('title').textContent=state.name; $('rev').textContent='REV '+String(revision()).padStart(2,'0');
+  const words=state.name.trim().split(/\s+/);
+  const last=words.pop();
+  $('title').replaceChildren(document.createTextNode(words.length ? words.join(' ')+' ' : ''),el('em',last));
+  $('rev').textContent='REV '+String(revision()).padStart(2,'0');
   $('sub').textContent=state.sample?'Campus showcase · Rehearsal sheet':'Production rundown';
   const crew=$('crew').value;
   const crews=[...new Set(state.rows.map(r=>r.crew))];
+  const times=state.rows.map(row=>row.time).sort();
+  $('map-time').textContent=times[0]===times.at(-1) ? times[0] : times[0]+' – '+times.at(-1);
+  $('counts').textContent=state.rows.length+' '+(state.rows.length===1?'cue':'cues')+' / '+crews.length+' '+(crews.length===1?'crew':'crews');
   const options=['',...crews].map(s=>{const opt=el('option',s||'All crews');opt.value=s;return opt;});
   $('crew').replaceChildren(...options); $('crew').value=crews.includes(crew)?crew:'';
+  const previousButtons=$('crew-rail').children;
+  if (!previousButtons.length || $('crew-rail').dataset?.crews!==JSON.stringify(crews)) {
+    const chips=['',...crews].map(group=>{
+      const chip=el('button',group||'All','crew-chip');
+      chip.type='button';chip.value=group;
+      chip.onclick=()=>{$('crew').value=group;$('crew').onchange();};
+      return chip;
+    });
+    $('crew-rail').replaceChildren(...chips);
+    if($('crew-rail').dataset) $('crew-rail').dataset.crews=JSON.stringify(crews);
+  }
+  for(const chip of $('crew-rail').children) chip.setAttribute('aria-pressed',String(chip.value===$('crew').value));
   const visible=state.rows.filter(r=>!$('crew').value || r.crew===$('crew').value);
   const updated=state.history.at(-1)?.ids || [];
   $('rundown').replaceChildren(...visible.map(r=>{
@@ -136,7 +154,7 @@ $('file').onchange=async()=>{
   } catch(e) {status(e.message);}
   finally {busy=false;$('file').value='';render();}
 };
-function network() { $('network').textContent=navigator.onLine?'● Online':'○ Offline'; }
+function network() { $('network').textContent=navigator.onLine?'Online':'Offline'; }
 window.addEventListener('online',network);window.addEventListener('offline',network);
 network();modeText();render();
 CueAI.connect().then(()=>{if(!pending) status(CueAI.reason() || 'Firebase connected. Select a mode and enter a change note.');render();});

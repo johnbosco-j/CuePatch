@@ -1,19 +1,10 @@
 <!doctype html>
-<html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CuePatch · Live checks</title><link rel="stylesheet" href="style.css"></head>
-<body>
-<header><a href="index.html" class="brand">▥ &nbsp;CuePatch</a><span>REHEARSAL TEST</span></header>
-<main>
-<section class="mast"><div><div class="eyebrow">Acceptance test</div><h1>Live rehearsal checks</h1><p>Run a fresh model request on an eight-cue fictional show. Compare its edits to the caller’s expected cue IDs.</p></div></section>
-<section class="desk">
-<section class="sheet">
-<h2>Choose a rehearsal change</h2><label for="case">Test case</label><select id="case"></select>
-<p id="note"></p><p id="expected" class="hint"></p>
-<label for="route">Inference mode</label><select id="route"><option value="private">On-device only</option><option value="hybrid">Allow cloud fallback</option></select>
-<p id="permission"></p><button class="primary" id="run" disabled>Run live check</button>
-<p id="status" role="status"></p>
-</section>
-<section class="change"><h2>Observed results</h2><p id="empty">Results appear after a live request. Check the replacement wording as well as the cue IDs.</p>
-<div id="results"></div><button id="export" class="example" disabled>Download test report</button></section>
-</section><footer><a href="index.html">Return to show desk</a></footer></main>
-<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="checks.js"></script></body></html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f7f8"><title>CuePatch · Live checks</title><link rel="stylesheet" href="style.css"></head>
+<body id="top"><a class="skip" href="#tests">Skip to live checks</a>
+<header class="capsule"><a href="index.html" class="brand"><span class="seal" aria-hidden="true">C</span>CuePatch</a><nav id="navigation" aria-label="Primary"><a href="index.html#desk">Show desk</a><a href="index.html#history">Revisions</a><a aria-current="page" href="#top">Live checks</a></nav><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button></header>
+<main><section class="checks-hero"><p class="eyebrow"><span></span> Firebase AI Logic</p><h1>Live <em>checks</em></h1><p class="sub">Run a rehearsal change against eight cues. Compare the model’s edits with the caller’s expected cue IDs.</p></section>
+<div class="desk" id="tests"><section class="panel"><div class="bar"><h2>Test <em>case</em></h2></div><label for="case">Test case</label><select id="case"></select><p id="note" class="case-note"></p><p id="expected" class="hint"></p>
+<label for="route">Inference mode</label><select id="route"><option value="private">On-device only</option><option value="hybrid">Allow cloud fallback</option></select><p id="permission" class="hint"></p><button class="primary" id="run" disabled>Run live check</button><p id="status" class="receipt" role="status"></p></section>
+<section class="panel"><div class="bar"><h2>Observed <em>results</em></h2></div><p id="empty">Results appear after a live request. Check the wording as well as the cue IDs.</p><div id="results"></div><button id="export" class="example" disabled>Download test report</button></section></div>
+<footer><span class="brand-sign">CuePatch <em>by Riven</em></span><a href="index.html">Return to show desk</a></footer></main>
+<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="checks.js"></script><script src="navigation.js"></script></body></html>

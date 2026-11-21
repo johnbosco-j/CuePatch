@@ -14,6 +14,10 @@ The example-note button fills the note field. Every proposal requires a successf
 
 Two live requests from Brave used the dedicated project with App Check. Moving the opening host to the lectern returned precisely the four opening cues in 2.88 seconds. A new camera note about the first song returned VC-02 alone in 2.1 seconds. The caller approved that edit as revision 2. Brave reported the on-device model unavailable in local-only mode. A successful on-device/offline run on supported Chrome still needs hardware verification.
 
+## Interface
+
+CuePatch adapts the entrant’s pre-existing Riven design reference to a stage caller’s desk. The white and gray surfaces use a single red accent. Instrument Sans and italic Instrument Serif carry the heading hierarchy, with DM Mono for cue IDs, times and revisions. The capsule navigation, orbital overview, grouped crew filters, keyboard controls and reduced-motion layout were implemented for this entry. The orbit uses browser CSS. No company photos or 3D assets ship with the app.
+
 ## Run the Firebase version
 
 1. Use a dedicated Firebase project. In Firebase Console enable **AI Logic** with the **Gemini Developer API**. Register a web app. Register the same web app in App Check with a **reCAPTCHA Enterprise** web key for your demo domain. Confirm that enforcement for Firebase AI Logic is active.
@@ -61,7 +65,7 @@ Tests cover cue validation, partial approval and review state. These run with No
 
 ## Project provenance
 
-New project started November 20, 2026 for #BuildHybridAI. Original application code and fictional rehearsal material were created during the event with Codex assistance. The Firebase SDK and its dependencies retain their respective licenses. The application source uses the MIT license. No prior Riven, MITRA or college production code or data is included.
+New project started November 20, 2026 for #BuildHybridAI. Original application code and fictional rehearsal material were created during the event with Codex assistance. The Firebase SDK and its dependencies retain their respective licenses. The application source uses the MIT license. The Riven design system supplied the visual reference. All CuePatch application logic, stage instructions and interface implementation were created for this event.
 
 ## References
 
