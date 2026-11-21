@@ -2,6 +2,8 @@
 
 A stage manager turns one last-minute rehearsal change into reviewed revisions for sound, lighting, camera and stage. Each suggestion names a cue, shows its old and new instructions and quotes the rehearsal note. The caller decides which edits to release. Each crew can export its own calling copy.
 
+[Open CuePatch](https://cuepatch-showdesk.gladlatch1.chatgpt.site/) · [Run a live Firebase check](https://cuepatch-showdesk.gladlatch1.chatgpt.site/checks.html)
+
 ## Use the show desk
 
 Open the deployed show desk in a desktop browser. Choose **Start a show**, enter the production name and paste spreadsheet rows with four columns (ID, time in HH:MM, crew and instruction). Tab-separated or vertical-bar-separated lines are supported. Alternatively import an existing rundown JSON, or use the included eight-cue campus showcase. The desk accepts 1–60 cues.
