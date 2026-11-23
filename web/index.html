@@ -1,17 +1,24 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f7f7f8"><title>CuePatch · Show desk</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body id="top">
+<body id="top" class="show-desk">
 <a class="skip" href="#desk">Skip to show desk</a>
 <header class="capsule">
   <a href="#top" class="brand" aria-label="CuePatch home"><span class="seal" aria-hidden="true">C</span>CuePatch</a>
-  <nav id="navigation" aria-label="Primary"><a href="#desk" aria-current="location">Show desk</a><a href="#operations">Caller</a><a href="#history">Revisions</a><a href="checks.html">Live checks</a></nav><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button>
+  <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button>
+  <nav id="navigation" aria-label="Primary">
+    <a href="#desk" aria-current="location">Show desk</a><a href="#operations">Caller</a><a href="#history">Revisions</a><a href="checks.html">Live checks</a>
+    <a class="android-download" href="https://github.com/johnbosco-j/CuePatch/releases/download/android-v1.0.0/CuePatch-1.0.0.apk">Download Android APK</a>
+  </nav>
   <span class="network" id="network"></span>
 </header>
+<nav class="mobile-sections" aria-label="Show sections">
+  <a href="#operations">Caller</a><a href="#handoff">Handoffs</a><a href="#desk">Cue sheet</a><a href="#change">Changes</a>
+</nav>
 <main>
   <section class="hero" aria-labelledby="title">
     <div class="hero-copy">
@@ -42,7 +49,7 @@
       <div class="call-actions"><button class="primary" id="call-block">Call block</button><button class="example" id="undo-call">Undo last call</button><button class="focus-launch" id="focus-open" aria-haspopup="dialog">Open caller view</button></div>
       <p id="next-block" class="ops-meta"></p>
     </section>
-    <section class="ops-panel handoff" aria-labelledby="handoff-heading">
+    <section id="handoff" class="ops-panel handoff" aria-labelledby="handoff-heading">
       <div class="ops-top"><p class="eyebrow"><span></span> Crew copies</p><span id="handoff-count" class="counter"></span></div>
       <h2 id="handoff-heading">Crew <em>handoff</em></h2>
       <div id="handoff-rows"></div>
@@ -104,7 +111,7 @@
     </section>
   </div>
   <section class="history" id="history"><div class="bar"><h2>Revision <em>log</em></h2><div class="local-status"><span id="session">Saved on this device</span><span id="offline-status">Preparing offline desk</span></div></div><div id="log"></div></section>
-  <footer><span class="brand-sign">CuePatch <em>by Riven</em></span><a href="checks.html">Test live Firebase inference</a><button id="backup" class="link">Back up production</button><button id="download" class="link">Download rundown JSON</button></footer>
+  <footer><span class="brand-sign">CuePatch <em>by Riven</em></span><a href="checks.html">Test live Firebase inference</a><button id="backup" class="link">Back up production</button><button id="download" class="link">Download rundown JSON</button><a class="link android-download" href="https://github.com/johnbosco-j/CuePatch/releases/download/android-v1.0.0/CuePatch-1.0.0.apk">Download Android APK</a></footer>
 </main>
 <script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="production.js"></script><script src="crew-copy.js"></script><script src="crew-page.js"></script><script src="app.js"></script><script src="navigation.js"></script>
 </body></html>

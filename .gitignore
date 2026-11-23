@@ -4,3 +4,10 @@ dist/
 .firebase/
 firebase-debug*.log
 .DS_Store
+
+.vercel/
+*.apk
+*.p12
+*.jks
+*.keystore
+.vercel

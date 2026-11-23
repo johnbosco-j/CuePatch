@@ -1,0 +1,9 @@
+.gradle/
+.kotlin/
+local.properties
+**/build/
+**/google-services.json
+*.jks
+*.keystore
+*.p12
+recaptcha-site-key.txt

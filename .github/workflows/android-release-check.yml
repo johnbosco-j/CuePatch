@@ -1,0 +1,72 @@
+name: Android release check
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published CuePatch Android tag
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  launch-signed-apk:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, 'android-v')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      SYSTEM_IMAGE: system-images;android-34;google_apis;x86_64
+    steps:
+      - name: Fetch the released APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$TAG" =~ ^android-v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "CuePatch-${TAG#android-v}.apk"
+          mv "CuePatch-${TAG#android-v}.apk" CuePatch.apk
+          sha256sum CuePatch.apk
+      - name: Start an Android 14 emulator
+        run: |
+          set -euo pipefail
+          test -e /dev/kvm
+          sudo chown "$(id -u):$(id -g)" /dev/kvm
+          sudo chmod u+rw /dev/kvm
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "$SYSTEM_IMAGE" emulator platform-tools
+          echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n cuepatch -k "$SYSTEM_IMAGE"
+          "$ANDROID_HOME/emulator/emulator" -avd cuepatch -no-window -noaudio -no-boot-anim -no-snapshot -gpu swiftshader > emulator.log 2>&1 &
+          timeout 240 adb wait-for-device
+          timeout 240 bash -c 'until adb shell getprop sys.boot_completed | tr -d "\r" | grep -qx 1; do sleep 3; done'
+          adb shell input keyevent 82
+      - name: Install and open the desk offline
+        run: |
+          set -euo pipefail
+          adb install CuePatch.apk
+          adb shell cmd connectivity airplane-mode enable
+          adb shell svc wifi disable
+          adb shell svc data disable
+          adb shell am start -W -n app.riven.cuepatch/.DeskActivity
+          for attempt in $(seq 1 15); do
+            adb shell uiautomator dump /sdcard/cuepatch-window.xml >/dev/null || true
+            adb exec-out cat /sdcard/cuepatch-window.xml > window.xml || true
+            if grep -Eiq 'Opening night|Review a change|On standby|Open caller view|Production desk' window.xml; then
+              adb shell pidof app.riven.cuepatch
+              adb exec-out screencap -p > android-desk.png
+              exit 0
+            fi
+            sleep 2
+          done
+          adb logcat -d -b crash
+          exit 1
+      - name: Retain the emulator screenshot
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-offline-desk
+          path: android-desk.png
+          retention-days: 7

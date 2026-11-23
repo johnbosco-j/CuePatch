@@ -68,6 +68,9 @@ find('run').onclick=async()=>{
 };
 find('export').onclick=()=>{
   const content=JSON.stringify({scope:'Fictional rehearsal · cue IDs checked; wording requires human review',runs:reports},null,2);
+  if(window.CuePatchAndroid){
+    window.CuePatchAndroid.postMessage(JSON.stringify({action:'save',name:'cuepatch-live-checks.json',text:content,type:'application/json'}));return;
+  }
   const url=URL.createObjectURL(new Blob([content],{type:'application/json'}));
   const link=element('a','Download');link.href=url;link.download='cuepatch-live-checks.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };

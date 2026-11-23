@@ -2,13 +2,13 @@
 
 A stage manager turns one last-minute rehearsal change into reviewed revisions for sound, lighting, camera and stage. Each suggestion names a cue, shows its old and new instructions and quotes the rehearsal note. The caller decides which edits to release. Each crew can export its own calling copy.
 
-[Open CuePatch](https://cuepatch-showdesk.gladlatch1.chatgpt.site/) · [Run a live Firebase check](https://cuepatch-showdesk.gladlatch1.chatgpt.site/checks.html)
+[Open CuePatch on Vercel](https://cuepatch-iota.vercel.app/) · [Run a live Firebase check](https://cuepatch-iota.vercel.app/checks.html) · [Download the Android APK](https://github.com/johnbosco-j/CuePatch/releases/download/android-v1.0.0/CuePatch-1.0.0.apk) · [Android setup](android/README.md)
 
 ![Studio matinee crew handoff board with one department needing revision 2](media/crew-handoff.jpg)
 
 ## Use the show desk
 
-Open the deployed show desk in a desktop browser. Choose **Start a show**, enter the production name and paste spreadsheet rows with four columns (ID, time in HH:MM, crew and instruction). Tab-separated or vertical-bar-separated lines are supported. Alternatively import an existing rundown JSON, or use the included eight-cue campus showcase. The desk accepts 1–60 cues.
+Open the show desk on your phone or computer. On Android 8 or later, you can also install the signed APK. The installed desk opens offline and saves each production on that device. Choose **Start a show**, enter the production name and paste spreadsheet rows with four columns (ID, time in HH:MM, crew and instruction). Tab-separated or vertical-bar-separated lines are supported. Alternatively import an existing rundown JSON, or use the included eight-cue campus showcase. The desk accepts 1–60 cues.
 
 Enter a rehearsal change. For a supported, prepared Chrome device, choose **On-device only**. In Brave and other online browsers without the local model, choose **On-device with cloud fallback** to allow Firebase to process the sheet. Click **Find affected cues**. Review each proposed edit against its highlighted quote and select only the changes to issue. **Approve selected cues** creates a revision. Filter by crew, choose **Export sheet** to inspect that department’s calling copy and **Download text file** to save it.
 

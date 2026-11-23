@@ -1,0 +1,11 @@
+.git
+.vercel
+android
+dist
+tests
+media
+config.local.js
+.env*
+**/*.p12
+**/*.jks
+**/*.keystore

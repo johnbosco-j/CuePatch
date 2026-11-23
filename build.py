@@ -1,13 +1,22 @@
 """Prepare a static Firebase Hosting directory using optional local demo settings."""
 from pathlib import Path
 from hashlib import sha256
+import json
+import os
 from shutil import copyfile
 root = Path(__file__).resolve().parent
 dist = root / 'dist'
 dist.mkdir(exist_ok=True)
 for file in (root / 'web').iterdir():
     copyfile(file, dist / file.name)
-if (root / 'config.local.js').is_file():
+web_config = os.environ.get('CUEPATCH_FIREBASE_WEB')
+if web_config:
+    config = json.loads(web_config)
+    if not config.get('appCheckSiteKey') or not all(config.get('firebase', {}).get(key) for key in ('projectId', 'apiKey', 'appId')):
+        raise ValueError('CUEPATCH_FIREBASE_WEB needs the Firebase web registration and public App Check site key.')
+    public = {'firebase': config['firebase'], 'appCheckSiteKey': config['appCheckSiteKey'], 'localDebug': False}
+    (dist / 'config.js').write_text('window.CUEPATCH_CONFIG = ' + json.dumps(public) + ';\n')
+elif (root / 'config.local.js').is_file():
     copyfile(root / 'config.local.js', dist / 'config.js')
 
 assets = sha256()

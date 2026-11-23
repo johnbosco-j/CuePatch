@@ -43,6 +43,9 @@ async function persist(next, expected=state.version) {
   } finally {saving=false;}
 }
 function download(name,text,type) {
+  if(window.CuePatchAndroid){
+    window.CuePatchAndroid.postMessage(JSON.stringify({action:'save',name,text,type}));return;
+  }
   const url=URL.createObjectURL(new Blob([text],{type}));
   const a=el('a'); a.href=url; a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
@@ -209,7 +212,9 @@ function prepareIssue() {
   $('crew-issue').hidden=!issued;$('issue-url').hidden=true;
   if (!issued) return;
   const hash=CrewCopy.fragment(issued);
-  const url=hash?new URL('crew.html'+hash,document.baseURI).href:'';
+  const base=window.CuePatchAndroid?'https://cuepatch-showdesk.gladlatch1.chatgpt.site/':document.baseURI;
+  const url=hash?new URL('crew.html'+hash,base).href:'';
+  $('issue-copy').textContent=window.CuePatchAndroid?'Share crew link':'Copy crew link';
   $('issue-title').textContent=crew+' · Revision '+issued.revision;
   $('issue-summary').textContent=CrewCopy.summary(issued);
   $('issue-differences').replaceChildren(...issued.cues.filter(cue=>cue[3]).map(([id,time,text])=>{
@@ -226,6 +231,9 @@ $('export').onclick=()=>{
 };
 $('issue-copy').onclick=async()=>{
   const value=$('issue-url').value;if(!issued || !value)return;
+  if(window.CuePatchAndroid){
+    window.CuePatchAndroid.postMessage(JSON.stringify({action:'share',url:value}));return;
+  }
   try {
     await navigator.clipboard.writeText(value);
     $('issue-note').textContent='Crew link copied. Record the handoff after the crew receives it.';
@@ -240,6 +248,9 @@ $('issue-file').onclick=()=>{
 $('save-sheet').onclick=()=>download('cuepatch-rev-'+revision()+'.txt',crewCopy(),'text/plain;charset=utf-8');
 $('print-sheet').onclick=()=>{
   $('copy-text').textContent=crewCopy();
+  if(window.CuePatchAndroid){
+    window.CuePatchAndroid.postMessage(JSON.stringify({action:'print',text:$('copy-text').textContent}));return;
+  }
   document.body.classList.add('printing-copy');
   try { window.print(); } finally { document.body.classList.remove('printing-copy'); }
 };
