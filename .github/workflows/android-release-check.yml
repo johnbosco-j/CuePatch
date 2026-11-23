@@ -39,7 +39,9 @@ jobs:
           sudo chmod u+rw /dev/kvm
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "$SYSTEM_IMAGE" emulator platform-tools
           echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n cuepatch -k "$SYSTEM_IMAGE"
-          "$ANDROID_HOME/emulator/emulator" -avd cuepatch -no-window -noaudio -no-boot-anim -no-snapshot -gpu swiftshader > emulator.log 2>&1 &
+          nohup "$ANDROID_HOME/emulator/emulator" -avd cuepatch -no-window -noaudio -no-boot-anim -no-snapshot -gpu swiftshader < /dev/null > emulator.log 2>&1 &
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
           timeout 240 adb wait-for-device
           timeout 240 bash -c 'until adb shell getprop sys.boot_completed | tr -d "\r" | grep -qx 1; do sleep 3; done'
           adb shell input keyevent 82
@@ -63,6 +65,9 @@ jobs:
           done
           adb logcat -d -b crash
           exit 1
+      - name: Show emulator diagnostics on failure
+        if: failure()
+        run: tail -60 emulator.log || true
       - name: Retain the emulator screenshot
         if: success()
         uses: actions/upload-artifact@v4
