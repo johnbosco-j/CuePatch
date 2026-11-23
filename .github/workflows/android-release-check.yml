@@ -46,7 +46,15 @@ jobs:
           sudo chown "$(id -u):$(id -g)" /dev/kvm
           sudo chmod u+rw /dev/kvm
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "$SYSTEM_IMAGE" emulator platform-tools
-          echo no | "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n cuepatch -k "$SYSTEM_IMAGE"
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/cuepatch-avds"
+          mkdir -p "$ANDROID_AVD_HOME"
+          avd_path="$ANDROID_AVD_HOME/cuepatch.avd"
+          "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd --name cuepatch --package "$SYSTEM_IMAGE" --path "$avd_path" <<< no
+          test -s "$avd_path/config.ini"
+          if [[ ! -s "$ANDROID_AVD_HOME/cuepatch.ini" ]]; then
+            printf 'avd.ini.encoding=UTF-8\npath=%s\n' "$avd_path" > "$ANDROID_AVD_HOME/cuepatch.ini"
+          fi
+          "$ANDROID_HOME/emulator/emulator" -list-avds | grep -Fx cuepatch
           nohup "$ANDROID_HOME/emulator/emulator" -avd cuepatch -no-window -noaudio -no-boot-anim -no-snapshot -gpu swiftshader < /dev/null > emulator.log 2>&1 &
           export PATH="$ANDROID_HOME/platform-tools:$PATH"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
