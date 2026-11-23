@@ -2,6 +2,10 @@
 
 The APK installs the CuePatch show desk, production library, caller view and crew exports on the device. The desk loads from bundled assets and uses Android System WebView for rendering. It can run the show without loading a website. The Kotlin application owns Firebase inference, file selection, exports, Android Sharesheet and printing. No account is required to call a show or manage its cues.
 
+The mobile desk puts Caller, Handoffs, Cue sheet and Changes within thumb reach. Open the navigation menu on the web desk to download the signed APK.
+
+<img src="../media/mobile-desk.jpg" alt="CuePatch on a phone with the 18:00 standby block, department cues and bottom navigation" width="244"> <img src="../media/android-offline.png" alt="Installed Android 14 app in airplane mode with the local Opening night rundown" width="203">
+
 ## Build
 
 1. Install JDK 17 and Android SDK Platform 36. Use the included Gradle wrapper from this directory.

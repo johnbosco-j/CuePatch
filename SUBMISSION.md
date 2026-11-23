@@ -24,6 +24,12 @@ CuePatch uses Firebase AI Logic and App Check on Web and Android. Its installed 
 
 In another live trial, the caller switched the host’s microphone in a six-cue production. Firebase returned MIC-01 alone in 1.9 seconds. Revision 2 marked Sound for reissue, kept Camera current and retained the singer’s original handheld. Crew links contain a single department’s revision, and offline HTML copies can be opened without the app or a sign-in. The caller could advance the show and open a crew copy after the prepared desk’s server stopped. Handoffs are recorded by the caller on one device.
 
+## Public builds
+
+[Web desk on Vercel](https://cuepatch-iota.vercel.app/) · [Android 1.0.0 and SHA-256 checksum](https://github.com/johnbosco-j/CuePatch/releases/tag/android-v1.0.0) · [Public source](https://github.com/johnbosco-j/CuePatch).
+
+On November 23 the Vercel live check for swapping the opening microphone returned AU-01 alone in 2.76 seconds via cloud inference. The published installer is a signed 7,747,067-byte APK for Android 8 or later. An Android 14 emulator installed it and opened the bundled desk in airplane mode. The caller advanced the 18:00 block, force-stopped the app and reopened it offline. The 18:04 block was still next. Downloading the APK from the site produced the release checksum.
+
 ## Live acceptance record
 
 Use fresh revisions for each trial. The table gives acceptance targets. Observed results are recorded above.
