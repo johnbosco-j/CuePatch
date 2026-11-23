@@ -10,6 +10,11 @@ on:
         required: true
         type: string
 
+      check_cloud:
+        description: Send one fictional rehearsal to Firebase through the installed APK
+        default: false
+        type: boolean
+
 permissions:
   contents: read
 
@@ -22,6 +27,9 @@ jobs:
       TAG: ${{ github.event.release.tag_name || inputs.tag }}
       SYSTEM_IMAGE: system-images;android-34;google_apis;x86_64
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Fetch the released APK
         env:
           GH_TOKEN: ${{ github.token }}
@@ -65,6 +73,11 @@ jobs:
           done
           adb logcat -d -b crash
           exit 1
+      - name: Call a block and restore it offline
+        run: python3 .github/scripts/android-desk-check.py offline
+      - name: Exercise native Firebase cloud fallback
+        if: github.event_name == 'workflow_dispatch' && inputs.check_cloud
+        run: python3 .github/scripts/android-desk-check.py cloud
       - name: Show emulator diagnostics on failure
         if: failure()
         run: tail -60 emulator.log || true
