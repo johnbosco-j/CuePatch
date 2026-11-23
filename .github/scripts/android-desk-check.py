@@ -1,4 +1,5 @@
 """Exercise the installed release through its visible Android controls."""
+from pathlib import Path
 import re
 import subprocess
 import sys
@@ -11,8 +12,17 @@ def adb(*args):
 
 
 def window():
-    adb("shell", "uiautomator", "dump", "/sdcard/cuepatch-window.xml")
-    return ET.fromstring(adb("exec-out", "cat", "/sdcard/cuepatch-window.xml"))
+    for attempt in range(4):
+        try:
+            adb("shell", "uiautomator", "dump", "/sdcard/cuepatch-window.xml")
+            xml = adb("exec-out", "cat", "/sdcard/cuepatch-window.xml")
+            tree = ET.fromstring(xml)
+            Path("last-screen.xml").write_text(xml)
+            return tree
+        except (subprocess.SubprocessError, ET.ParseError):
+            if attempt == 3:
+                raise
+            time.sleep(2)
 
 
 def labels(node):
@@ -36,6 +46,7 @@ def tap(label, scroll=False):
     for _ in range(8 if scroll else 3):
         point = locate(label)
         if point:
+            print("Opening:", label, flush=True)
             adb("shell", "input", "tap", *map(str, point))
             return
         if scroll:
@@ -45,11 +56,15 @@ def tap(label, scroll=False):
     raise RuntimeError(f'Could not reach "{label}"')
 
 
-def expect(label, seconds=24):
+def expect(label, seconds=24, scroll=False):
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
         if locate(label):
+            print("Visible:", label, flush=True)
             return
+        if scroll:
+            x, y = screen
+            adb("shell", "input", "swipe", str(x//2), str(3*y//4), str(x//2), str(y//3), "350")
     raise RuntimeError(f'Expected "{label}"')
 
 
@@ -61,7 +76,7 @@ if sys.argv[1] == "offline":
     adb("shell", "am", "force-stop", package)
     adb("shell", "am", "start", "-W", "-n", package + "/.DeskActivity")
     tap("Caller")
-    expect("Call 18:04 block")
+    expect("Call 18:04 block", scroll=True)
     print("The first block stayed called after an offline restart.")
 elif sys.argv[1] == "cloud":
     adb("shell", "cmd", "connectivity", "airplane-mode", "disable")

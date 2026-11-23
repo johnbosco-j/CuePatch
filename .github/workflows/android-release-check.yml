@@ -27,7 +27,7 @@ jobs:
       TAG: ${{ github.event.release.tag_name || inputs.tag }}
       SYSTEM_IMAGE: system-images;android-34;google_apis;x86_64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - name: Fetch the released APK
@@ -55,13 +55,17 @@ jobs:
             printf 'avd.ini.encoding=UTF-8\npath=%s\n' "$avd_path" > "$ANDROID_AVD_HOME/cuepatch.ini"
           fi
           "$ANDROID_HOME/emulator/emulator" -list-avds | grep -Fx cuepatch
-          nohup "$ANDROID_HOME/emulator/emulator" -avd cuepatch -no-window -noaudio -no-boot-anim -no-snapshot -gpu swiftshader < /dev/null > emulator.log 2>&1 &
+          nohup "$ANDROID_HOME/emulator/emulator" -avd cuepatch -memory 3072 -cores 2 -no-window -noaudio -no-boot-anim -no-snapshot -gpu swiftshader < /dev/null > emulator.log 2>&1 &
           export PATH="$ANDROID_HOME/platform-tools:$PATH"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
           timeout 240 adb wait-for-device
           timeout 240 bash -c 'until adb shell getprop sys.boot_completed | tr -d "\r" | grep -qx 1; do sleep 3; done'
           adb shell input keyevent 82
+          for scale in window_animation_scale transition_animation_scale animator_duration_scale; do
+            adb shell settings put global "$scale" 0
+          done
       - name: Install and open the desk offline
+        id: open_desk
         run: |
           set -euo pipefail
           adb install CuePatch.apk
@@ -84,15 +88,22 @@ jobs:
       - name: Call a block and restore it offline
         run: python3 .github/scripts/android-desk-check.py offline
       - name: Exercise native Firebase cloud fallback
-        if: github.event_name == 'workflow_dispatch' && inputs.check_cloud
+        if: >-
+          !cancelled() && steps.open_desk.outcome == 'success' &&
+          github.event_name == 'workflow_dispatch' && inputs.check_cloud
         run: python3 .github/scripts/android-desk-check.py cloud
       - name: Show emulator diagnostics on failure
         if: failure()
-        run: tail -60 emulator.log || true
+        run: |
+          tail -60 emulator.log || true
+          adb exec-out screencap -p > last-screen.png || true
       - name: Retain the emulator screenshot
-        if: success()
+        if: "!cancelled() && steps.open_desk.outcome == 'success'"
         uses: actions/upload-artifact@v4
         with:
           name: android-offline-desk
-          path: android-desk.png
+          path: |
+            android-desk.png
+            last-screen.png
+            last-screen.xml
           retention-days: 7
