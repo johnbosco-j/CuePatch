@@ -32,7 +32,7 @@ def labels(node):
 def locate(label):
     tree = window()
     for node in tree.iter("node"):
-        if label in labels(node):
+        if label in labels(node) or node.get("resource-id") == label:
             bounds = list(map(int, re.findall(r"\d+", node.get("bounds", ""))))
             if len(bounds) == 4 and bounds[2] > bounds[0] and bounds[3] > bounds[1]:
                 return (bounds[0] + bounds[2]) // 2, (bounds[1] + bounds[3]) // 2
@@ -86,7 +86,7 @@ elif sys.argv[1] == "cloud":
     adb("shell", "am", "start", "-W", "-n", package + "/.DeskActivity")
     tap("Open navigation")
     tap("Live checks")
-    tap("On-device only", scroll=True)
+    tap("route", scroll=True)
     tap("Allow cloud fallback")
     tap("Run live check", scroll=True)
     for _ in range(60):
