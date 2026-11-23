@@ -16,7 +16,10 @@ let saving=false;
 const revision=()=>state.history.length+1;
 const atTime=stamp=>new Date(stamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 function status(message) { $('status').textContent=message; }
-function notice(message) { $('operation-status').textContent=message; }
+function notice(message) {
+  $('operation-status').textContent=message;
+  if ($('caller-view').open) $('focus-status').textContent=message;
+}
 function selectShow(show) {
   state=show;book.remember(show.id);
   selectedBlock=null;$('cue-search').value='';$('crew').value='';$('note').value='';$('calling-copy').hidden=true;
@@ -240,6 +243,32 @@ $('file').onchange=async()=>{
   } catch(e) {status(e.message);}
   finally {busy=false;$('file').value='';render();}
 };
+function cueLines(rows) {
+  return rows.map(row=>{
+    const line=el('li');
+    line.append(el('span',row.id,'cue-id'),el('strong',row.crew),el('span',row.text));
+    return line;
+  });
+}
+function renderCallerView(blocks,index) {
+  const block=blocks[index], following=blocks[index+1];
+  $('focus-title').textContent=state.name;
+  $('focus-progress').textContent=$('call-progress').textContent+' · Rev '+revision();
+  $('focus-time').textContent=block?.time || 'Show complete';
+  $('focus-cues').replaceChildren(...cueLines(block?.rows || []));
+  $('focus-next').textContent=following?.time || (block?'Final block on standby':'All blocks called');
+  $('focus-next-cues').replaceChildren(...cueLines(following?.rows || []));
+  $('focus-call').textContent=$('call-block').textContent;
+  $('focus-call').disabled=$('call-block').disabled;
+  $('focus-undo').disabled=$('undo-call').disabled;
+  $('focus-empty').hidden=index>0;
+  $('focus-log').replaceChildren(...state.called.map((stamp,i)=>{
+    const entry=el('li');
+    const actual=el('time',atTime(stamp));actual.dateTime=stamp;
+    entry.append(el('strong',blocks[i].time+' block'),el('span','Called '),actual);
+    return entry;
+  }).reverse());
+}
 function renderOperations() {
   const disabled=busy || saving;
   let shows=[];try { shows=book.list(); } catch {}
@@ -254,14 +283,13 @@ function renderOperations() {
   $('call-progress').textContent=index+' / '+blocks.length+' called';
   $('block-time').textContent=block?.time || 'Complete';
   $('block-summary').textContent=block ? block.rows.length+' '+(block.rows.length===1?'cue':'cues')+' on standby' : 'All scheduled blocks called';
-  $('block-cues').replaceChildren(...(block?.rows || []).map(row=>{
-    const line=el('li');line.append(el('span',row.id,'cue-id'),el('strong',row.crew),el('span',row.text));return line;
-  }));
+  $('block-cues').replaceChildren(...cueLines(block?.rows || []));
   $('call-block').disabled=disabled || !block;
   $('call-block').textContent=block?'Call '+block.time+' block':'All blocks called';
   $('undo-call').disabled=disabled || !index;
   $('next-block').textContent=blocks[index+1]?'Next on standby · '+blocks[index+1].time:
     block?'Final scheduled block':state.called.length?'Last called at '+atTime(state.called.at(-1)):'';
+  renderCallerView(blocks,index);
   const crews=CueProduction.crewStatus(state);
   $('handoff-count').textContent=crews.filter(c=>c.current).length+' / '+crews.length+' current';
   $('handoff-rows').replaceChildren(...crews.map(item=>{
@@ -298,12 +326,19 @@ $('show-switch').onchange=()=>{
   const selected=book.get($('show-switch').value);if(!selected || busy || saving)return;
   selectShow(selected);notice('Opened '+selected.name+'.');
 };
-$('call-block').onclick=async()=>{
+$('focus-open').onclick=()=>{
+  $('focus-status').textContent='';$('caller-view').showModal();
+};
+$('caller-view').onclose=()=>$('focus-open').focus?.();
+$('caller-view').onkeydown=event=>{
+  if(event.repeat && (event.key==='Enter' || event.key===' ')) event.preventDefault();
+};
+$('focus-call').onclick=$('call-block').onclick=async()=>{
   const block=CueProduction.blocks(state.rows)[state.called.length];
   if(!block || busy || saving)return;
   if(await persist({...state,called:[...state.called,new Date().toISOString()]})){render();notice('Called '+block.time+' · '+block.rows.map(r=>r.id).join(', '));}
 };
-$('undo-call').onclick=async()=>{
+$('focus-undo').onclick=$('undo-call').onclick=async()=>{
   if(!state.called.length || busy || saving)return;
   if(await persist({...state,called:state.called.slice(0,-1)})){render();notice('Last call undone. The block is on standby again.');}
 };

@@ -4,6 +4,8 @@ A stage manager turns one last-minute rehearsal change into reviewed revisions f
 
 [Open CuePatch](https://cuepatch-showdesk.gladlatch1.chatgpt.site/) · [Run a live Firebase check](https://cuepatch-showdesk.gladlatch1.chatgpt.site/checks.html)
 
+![Studio matinee crew handoff board with one department needing revision 2](media/crew-handoff.jpg)
+
 ## Use the show desk
 
 Open the deployed show desk in a desktop browser. Choose **Start a show**, enter the production name and paste spreadsheet rows with four columns (ID, time in HH:MM, crew and instruction). Tab-separated or vertical-bar-separated lines are supported. Alternatively import an existing rundown JSON, or use the included eight-cue campus showcase. The desk accepts 1–60 cues.
@@ -15,6 +17,7 @@ The example-note button fills the note field. Every proposal requires a successf
 ## Run a show
 
 - **Live caller** groups consecutive cues with the same time, including shows that cross midnight. Call a block to move every department in that block onto the next one. Undo returns the last block to standby.
+- **Open caller view** enlarges the current and following blocks and lists the scheduled time alongside the actual call time in a production log. The caller can advance or undo from either view. Escape or **Back to desk** returns to the dashboard.
 - **Cue timeline** opens a time block in the sheet. Filter by crew or search by cue ID, clock time or instruction. Crew exports always include the entire selected department.
 - **Crew handoff** records the caller’s acknowledgement after a crew receives its copy. View, print or download a sheet, then mark it handed off. Approving changes puts only the affected departments back into the reissue list.
 - **Edit** beside any cue makes a manual correction without a model. Saving records the before/after wording with the source **Caller edit** and marks the affected issued copy for reissue.
@@ -27,7 +30,7 @@ Google awarded Trail best hybrid web app in its 2025 Chrome challenge. Its offli
 
 ## Observed on November 21, 2026
 
-Live requests from Brave used the dedicated project with App Check. Moving the opening host to the lectern returned precisely the four opening cues in 2.88 seconds. A new camera note about the first song returned VC-02 alone in 2.1 seconds. The caller approved that edit as revision 2. Brave reported the on-device model unavailable in local-only mode. The redesigned app also returned all four opening edits in 2.5 seconds, VC-02 alone in 2.35 seconds, and no edits for an unchanged rehearsal. With a local preview server subsequently stopped, Brave reopened the cached desk, called the 18:00 block, recorded a Lighting handoff and opened its two-cue calling copy. Successful local-model inference on supported Chrome still needs hardware verification.
+Live requests from Brave used the dedicated project with App Check. Moving the opening host to the lectern returned precisely the four opening cues in 2.88 seconds. A new camera note about the first song returned VC-02 alone in 2.1 seconds. The caller approved that edit as revision 2. Brave reported the on-device model unavailable in local-only mode. The redesigned app also returned all four opening edits in 2.5 seconds, VC-02 alone in 2.35 seconds, and no edits for an unchanged rehearsal. With a local preview server subsequently stopped, Brave reopened the cached desk, called the 18:00 block, recorded a Lighting handoff and opened its two-cue calling copy. In a separate six-cue production, a cloud request returned only MIC-01 in 1.9 seconds. After approval, Sound needed a new copy, Camera retained its current copy and the singer’s microphone stayed unchanged. A manual correction was also saved on a prepared desk after the preview server stopped. Successful local-model inference on supported Chrome still needs hardware verification.
 
 ## Interface
 

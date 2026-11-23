@@ -101,3 +101,21 @@ test('the caller can correct a cue without Firebase and the correction uses the 
   assert.equal(saved.history[0].source,'Caller edit');assert.equal(saved.rows[0].text,field.value);
   assert.match(get('handoff-rows').children[0].children[0].children[1].textContent,/Reissue/);
 });
+
+test('caller view shares the desk progress, shows the following block and restores the call log on reopen',async()=>{
+  const storage=new Map(),get=openDesk(storage);
+  assert.equal(get('focus-time').textContent,'18:00');
+  assert.equal(get('focus-next').textContent,'18:04');
+  assert.equal(get('focus-cues').children.length,4);
+  await get('focus-call').onclick();
+  assert.equal(get('block-time').textContent,'18:04');
+  assert.equal(get('focus-log').children[0].children[0].textContent,'18:00 block');
+  const reopened=openDesk(storage);
+  assert.equal(reopened('focus-log').children.length,1);
+  await reopened('focus-call').onclick();
+  assert.equal(reopened('focus-time').textContent,'Show complete');
+  assert.equal(reopened('focus-call').disabled,true);
+  await reopened('focus-undo').onclick();
+  assert.equal(reopened('focus-log').children.length,1);
+  assert.equal(reopened('block-time').textContent,'18:04');
+});

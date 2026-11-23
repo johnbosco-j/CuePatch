@@ -39,7 +39,7 @@
       <h2 id="caller-heading">On <em>standby</em></h2>
       <div class="block-line"><strong id="block-time"></strong><span id="block-summary"></span></div>
       <ul id="block-cues" class="block-list" aria-label="Standby instructions"></ul>
-      <div class="call-actions"><button class="primary" id="call-block">Call block</button><button class="example" id="undo-call">Undo last call</button></div>
+      <div class="call-actions"><button class="primary" id="call-block">Call block</button><button class="example" id="undo-call">Undo last call</button><button class="focus-launch" id="focus-open" aria-haspopup="dialog">Open caller view</button></div>
       <p id="next-block" class="ops-meta"></p>
     </section>
     <section class="ops-panel handoff" aria-labelledby="handoff-heading">
@@ -49,6 +49,27 @@
       <p class="ops-meta">Record each handoff after the crew receives its copy.</p>
     </section>
   </section>
+  <dialog id="caller-view" aria-labelledby="focus-title">
+    <header class="focus-header">
+      <div><p class="eyebrow">Live caller</p><h2 id="focus-title"></h2></div>
+      <form method="dialog"><button class="example" autofocus>Back to desk</button></form>
+    </header>
+    <div class="focus-body">
+      <section class="focus-now" aria-labelledby="focus-standby">
+        <div class="focus-label"><h3 id="focus-standby">On standby</h3><span id="focus-progress"></span></div>
+        <strong id="focus-time"></strong>
+        <ul id="focus-cues" class="focus-list" aria-label="Current block cues"></ul>
+        <div class="call-actions"><button class="primary" id="focus-call"></button><button class="example" id="focus-undo">Undo last call</button></div>
+        <p id="focus-status" role="status"></p>
+      </section>
+      <aside class="focus-upcoming" aria-label="Upcoming and called blocks">
+        <h3>Following block</h3><strong id="focus-next"></strong>
+        <ul id="focus-next-cues" class="focus-list" aria-label="Following block cues"></ul>
+        <h3 class="log-label">Call log</h3><p id="focus-empty">No blocks called yet.</p>
+        <ol id="focus-log" aria-label="Called blocks, most recent first"></ol>
+      </aside>
+    </div>
+  </dialog>
   <p id="operation-status" class="operation-status" role="status" aria-live="polite"></p>
   <div class="desk" id="desk">
     <section class="panel sheet" aria-labelledby="sheet-title">
