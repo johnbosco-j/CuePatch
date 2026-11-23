@@ -109,6 +109,11 @@ elif sys.argv[1] == "cloud":
             print("SDK diagnostics:", [term for term in known_issues if term.lower() in log.lower()])
             codes = set(re.findall(r"Error returned from API[.] code:\s*(\d{3})", log, re.I))
             print("App Check response codes:", sorted(codes))
+            # Read the provider's human-readable error only, excluding identifiers and URLs.
+            reasons = set(re.findall(r"Error returned from API[.] code: \d{3} body: ([^\n]+)", log, re.I))
+            for reason in sorted(reasons):
+                reason = re.sub(r"https?://\S+|[a-zA-Z0-9:/_.-]{20,}|[^ ]+@[^ ]+", "[redacted]", reason)
+                print("App Check exchange:", reason[:260])
             raise RuntimeError(error)
         if any("Live request finished." in v for v in visible):
             height = screen[1]
