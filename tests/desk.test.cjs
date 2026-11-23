@@ -17,10 +17,10 @@ function openDesk(storage, withModel=false) {
   const get=id=>nodes.get(id);
   get('mode').value='private';
   const mem={get length(){return storage.size;},key:i=>[...storage.keys()][i],getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,v)};
-  const context=vm.createContext({crypto:require('node:crypto').webcrypto,localStorage:mem,document:{getElementById:get,createElement:tag=>new Element(tag),createTextNode:t=>new Element('#text',t)},
+  const context=vm.createContext({crypto:require('node:crypto').webcrypto,TextEncoder,URL,btoa,localStorage:mem,document:{baseURI:'https://example.test/',getElementById:get,createElement:tag=>new Element(tag),createTextNode:t=>new Element('#text',t)},
     sessionStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},
     navigator:{onLine:true},window:{addEventListener(){}},console,confirm:()=>true});
-  for(const file of ['config.js','core.js','production.js']) vm.runInContext(src(file),context,{filename:file});
+  for(const file of ['config.js','core.js','production.js','crew-copy.js']) vm.runInContext(src(file),context,{filename:file});
   if (withModel) {
     context.CueAI={ready:()=>true,reason:()=>'',connect:async()=>{},analyse:async(rows,note)=>({
       patch:require('../web/core.js').validatePatch(rows,note,require('./fixture.cjs')),source:'unit-test',elapsed:1})};

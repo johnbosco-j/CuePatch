@@ -81,7 +81,12 @@
         <button class="primary" id="create-show">Create rundown</button><p id="form-error" role="status"></p>
       </form></details>
       <div class="filters"><label for="crew">Crew</label><select id="crew"></select><button id="export" class="link">Export sheet</button></div>
-      <section id="calling-copy" hidden aria-label="Crew calling copy"><h3>Calling copy</h3><pre id="copy-text"></pre><button type="button" id="save-sheet" class="link">Download text file</button><button type="button" id="print-sheet" class="link">Print calling copy</button><button type="button" id="close-copy" class="link">Close copy</button></section>
+      <section id="calling-copy" hidden aria-label="Crew calling copy"><h3>Calling copy</h3><pre id="copy-text"></pre>
+        <section id="crew-issue" hidden aria-label="Issue a crew copy">
+          <h4 id="issue-title"></h4><p id="issue-summary"></p><div id="issue-differences"></div>
+          <div class="issue-actions"><a id="issue-open" class="link" target="_blank" rel="noopener noreferrer">Open mobile copy</a><button id="issue-copy" class="link" type="button">Copy crew link</button><button id="issue-file" class="link" type="button">Download offline HTML</button></div>
+          <p id="issue-note" class="hint"></p><input type="text" readonly id="issue-url" aria-label="Crew link to copy" hidden>
+        </section><button type="button" id="save-sheet" class="link">Download text file</button><button type="button" id="print-sheet" class="link">Print calling copy</button><button type="button" id="close-copy" class="link">Close copy</button></section>
       <div class="cue-search"><label for="cue-search">Find a cue</label><input id="cue-search" type="search" placeholder="Cue ID, time, crew or instruction"><span id="visible-count"></span></div>
       <button id="clear-time" class="link" hidden>Show all time blocks</button>
       <div class="crew-rail" id="crew-rail" aria-label="Filter cue sheet by crew" role="group"></div><div id="rundown"></div>
@@ -101,5 +106,5 @@
   <section class="history" id="history"><div class="bar"><h2>Revision <em>log</em></h2><div class="local-status"><span id="session">Saved on this device</span><span id="offline-status">Preparing offline desk</span></div></div><div id="log"></div></section>
   <footer><span class="brand-sign">CuePatch <em>by Riven</em></span><a href="checks.html">Test live Firebase inference</a><button id="backup" class="link">Back up production</button><button id="download" class="link">Download rundown JSON</button></footer>
 </main>
-<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="production.js"></script><script src="app.js"></script><script src="navigation.js"></script>
+<script src="config.js"></script><script src="core.js"></script><script src="ai.js"></script><script src="production.js"></script><script src="crew-copy.js"></script><script src="crew-page.js"></script><script src="app.js"></script><script src="navigation.js"></script>
 </body></html>

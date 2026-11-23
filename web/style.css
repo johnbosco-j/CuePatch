@@ -288,3 +288,12 @@ body:has(#caller-view[open]){overflow:hidden}
 #focus-empty,#focus-status{font-size:14px;color:var(--muted)}
 #focus-status:empty{display:none}
 @media(max-width:650px){.focus-body{grid-template-columns:1fr}.focus-header{grid-template-columns:minmax(0,1fr) auto;gap:8px}.focus-upcoming{border-inline-start:0;border-top:1px solid var(--line)}#caller-view{width:96vw;max-height:96dvh}.focus-launch{margin-inline-start:0}}
+
+.handoff-ids{display:block;color:var(--deep);font:500 12px/1.5 var(--mono);margin-top:2px}
+#crew-issue{padding:14px 0;border-block:1px solid var(--line);margin:14px 0}
+#issue-title{font-size:18px;margin:0}#issue-summary{margin:4px 0 10px;color:var(--deep)}
+.issue-actions{display:flex;gap:5px 12px;flex-wrap:wrap;align-items:center}
+#issue-open{display:inline-block;font-weight:600;color:var(--deep);text-decoration:underline;text-underline-offset:3px}
+#issue-differences p{display:grid;gap:4px;font-size:15px;border-inline-start:3px solid var(--red);padding:4px 10px}
+#issue-differences strong{font:500 13px var(--mono)}#issue-note{margin-bottom:0}
+@media print{.printing-copy #crew-issue{display:none!important}}

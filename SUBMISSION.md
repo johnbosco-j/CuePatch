@@ -22,7 +22,7 @@ CuePatch uses the Firebase AI Logic Web SDK with App Check. A local-only mode ha
 
 **Built during the event**  New Web/Chrome app, original example rundown, import and export, review and selective approval, named local productions, a live caller with current and following blocks, persistent call times, manual revisions, crew handoff tracking, offline desk, reusable notes, portable backups, Firebase integration, tests and hosting configuration. The participant’s Riven site informed the visual design. Its product content and robot assets are outside CuePatch. Codex assisted implementation. Include any additional teammates, assets or pre-existing work added before submission.
 
-In another live trial, the caller switched the host’s microphone in a six-cue production. Firebase returned MIC-01 alone in 1.9 seconds. Revision 2 marked Sound for reissue, kept Camera current and retained the singer’s original handheld. The caller could advance the show and open a crew copy after the prepared desk’s server stopped. Handoffs are recorded by the caller on one device.
+In another live trial, the caller switched the host’s microphone in a six-cue production. Firebase returned MIC-01 alone in 1.9 seconds. Revision 2 marked Sound for reissue, kept Camera current and retained the singer’s original handheld. Crew links contain a single department’s revision, and offline HTML copies can be opened without the app or a sign-in. The caller could advance the show and open a crew copy after the prepared desk’s server stopped. Handoffs are recorded by the caller on one device.
 
 ## Live acceptance record
 

@@ -202,9 +202,40 @@ function crewCopy() {
   return [state.name+' / REV '+revision(),crew || 'All crews','',...items.map(row=>
     row.time+'  '+row.id+'  '+row.crew+'  '+row.text)].join('\n');
 }
+let issued=null;
+function prepareIssue() {
+  const crew=$('crew').value;
+  issued=crew?CrewCopy.snapshot(state,crew):null;
+  $('crew-issue').hidden=!issued;$('issue-url').hidden=true;
+  if (!issued) return;
+  const hash=CrewCopy.fragment(issued);
+  const url=hash?new URL('crew.html'+hash,document.baseURI).href:'';
+  $('issue-title').textContent=crew+' · Revision '+issued.revision;
+  $('issue-summary').textContent=CrewCopy.summary(issued);
+  $('issue-differences').replaceChildren(...issued.cues.filter(cue=>cue[3]).map(([id,time,text])=>{
+    const line=el('p');line.append(el('strong',time+' · '+id),el('span',text));return line;
+  }));
+  $('issue-open').hidden=!url;$('issue-copy').hidden=!url;
+  $('issue-open').href=url;$('issue-url').value=url;
+  $('issue-note').textContent=url?'Anyone with this link can read this crew’s issued copy. Later revisions get a new link.':
+    'This copy is too long for a portable link. Send the offline HTML to the crew.';
+}
 $('export').onclick=()=>{
-  $('copy-text').textContent=crewCopy();
+  $('copy-text').textContent=crewCopy();prepareIssue();
   $('calling-copy').hidden=false;
+};
+$('issue-copy').onclick=async()=>{
+  const value=$('issue-url').value;if(!issued || !value)return;
+  try {
+    await navigator.clipboard.writeText(value);
+    $('issue-note').textContent='Crew link copied. Record the handoff after the crew receives it.';
+  } catch {
+    const field=$('issue-url');field.hidden=false;field.focus();field.select();
+    $('issue-note').textContent='Copy the selected crew link.';
+  }
+};
+$('issue-file').onclick=()=>{
+  if(issued)download('cuepatch-'+issued.crew.replace(/[^a-z0-9_-]+/gi,'-')+'-R'+issued.revision+'.html',CrewPage.html(issued),'text/html;charset=utf-8');
 };
 $('save-sheet').onclick=()=>download('cuepatch-rev-'+revision()+'.txt',crewCopy(),'text/plain;charset=utf-8');
 $('print-sheet').onclick=()=>{
@@ -296,6 +327,10 @@ function renderOperations() {
     const row=el('div',undefined,'handoff-row');
     const identity=el('div');identity.append(el('strong',item.crew),el('span',item.current?'Current · handed off R'+item.previous.revision:
       item.previous?'Reissue · last handed off R'+item.previous.revision:'Awaiting first copy',item.current?'delivered':'not-issued'));
+    if (item.previous && !item.current) {
+      const revised=CrewCopy.snapshot(state,item.crew).cues.filter(cue=>cue[3]);
+      identity.append(el('small',revised.length+' revised · '+revised.slice(0,3).map(cue=>cue[0]).join(', ')+(revised.length>3?' …':''),'handoff-ids'));
+    }
     const actions=el('div',undefined,'crew-actions');const view=el('button','View copy','link');
     view.setAttribute('aria-label','View '+item.crew+' copy');
     view.onclick=()=>{selectedBlock=null;$('cue-search').value='';$('crew').value=item.crew;$('crew').onchange();$('export').onclick();$('calling-copy').scrollIntoView?.({block:'center'});};
