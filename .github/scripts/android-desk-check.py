@@ -93,6 +93,22 @@ elif sys.argv[1] == "cloud":
         visible = [v for n in window().iter("node") for v in labels(n) if v]
         error = next((v for v in visible if v.startswith("Check stopped.")), None)
         if error:
+            # The runner uses fictional cues. Print only known SDK issue labels.
+            pid = adb("shell", "pidof", package).strip()
+            log = adb("logcat", "-d", "--pid", pid)
+            known_issues = (
+                "Error obtaining AppCheck token", "AppCheck not registered",
+                "App attestation failed", "Too many attempts", "API_KEY_ANDROID_APP_BLOCKED",
+                "API_KEY_SERVICE_BLOCKED", "PERMISSION_DENIED", "UNAUTHENTICATED",
+                "Failed to exchange", "NETWORK_ERROR", "INVALID_SITEKEY", "INVALID_KEYTYPE",
+                "INVALID_PACKAGE_NAME", "INTERNAL_ERROR", "INVALID_ACTION", "DEVELOPER_ERROR",
+                "Failed to get provider", "HeaderProvided timed out", "UnknownHostException",
+                "SSLHandshakeException", "SERVICE_UNAVAILABLE", "API_NOT_AVAILABLE",
+                "Error returned from API", "RecaptchaException"
+            )
+            print("SDK diagnostics:", [term for term in known_issues if term.lower() in log.lower()])
+            codes = set(re.findall(r"Error returned from API[.] code:\s*(\d{3})", log, re.I))
+            print("App Check response codes:", sorted(codes))
             raise RuntimeError(error)
         if any("Live request finished." in v for v in visible):
             height = screen[1]
