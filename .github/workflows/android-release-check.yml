@@ -10,6 +10,13 @@ on:
         required: true
         type: string
 
+      image:
+        description: Android 14 system image
+        type: choice
+        options:
+          - google_apis
+          - google_apis_playstore
+        default: google_apis
       check_cloud:
         description: Send one fictional rehearsal to Firebase through the installed APK
         default: false
@@ -25,7 +32,7 @@ jobs:
     timeout-minutes: 15
     env:
       TAG: ${{ github.event.release.tag_name || inputs.tag }}
-      SYSTEM_IMAGE: system-images;android-34;google_apis_playstore;x86_64
+      SYSTEM_IMAGE: system-images;android-34;${{ inputs.image || 'google_apis' }};x86_64
     steps:
       - uses: actions/checkout@v5
         with:
@@ -49,7 +56,7 @@ jobs:
           export ANDROID_AVD_HOME="$RUNNER_TEMP/cuepatch-avds"
           mkdir -p "$ANDROID_AVD_HOME"
           avd_path="$ANDROID_AVD_HOME/cuepatch.avd"
-          "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd --name cuepatch --package "$SYSTEM_IMAGE" --device pixel_6 --path "$avd_path" <<< no
+          "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd --name cuepatch --package "$SYSTEM_IMAGE" --path "$avd_path" <<< no
           test -s "$avd_path/config.ini"
           if [[ ! -s "$ANDROID_AVD_HOME/cuepatch.ini" ]]; then
             printf 'avd.ini.encoding=UTF-8\npath=%s\n' "$avd_path" > "$ANDROID_AVD_HOME/cuepatch.ini"
