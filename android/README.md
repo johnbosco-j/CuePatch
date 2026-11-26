@@ -20,4 +20,8 @@ Tap **Check on-device model** from the inference control. If Android offers a do
 
 Import a production via the system picker. Call one block, close and reopen the app, and confirm that progress was restored. Issue a crew copy and share its revision link with another phone, or save a portable HTML file and open it offline. The native print action opens Android’s print UI. Browser and Android storage are separate; exchange a production backup to move a show between them.
 
+### Repeat the signed-release test
+
+Build the separate instrumentation APK with `./gradlew :app:assembleReleaseAndroidTest`. Sign it with the same certificate as the release you are testing. In Firebase Test Lab, choose **Instrumentation**, upload the published app APK and the signed test APK, and select a physical Android phone. The test opens **Live checks**, chooses **Swap the opening microphone**, enables cloud fallback, and checks that the SDK reports an inference source and that only AU-01 changes. The device log records the source and elapsed time under `CuePatchReleaseTest`. To require local execution on a prepared device, supply the instrumentation argument `route=private`.
+
 [Android hybrid inference](https://firebase.google.com/docs/ai-logic/hybrid/android/get-started) · [Android reCAPTCHA Enterprise App Check](https://firebase.google.com/docs/app-check/android/recaptcha-enterprise-provider) · [App Check debug provider](https://firebase.google.com/docs/app-check/android/debug-provider)

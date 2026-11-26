@@ -10,10 +10,12 @@ val recaptchaKey = providers.environmentVariable("CUEPATCH_ANDROID_RECAPTCHA_SIT
 android {
     namespace = "app.riven.cuepatch"
     compileSdk = 36
+    testBuildType = "release"
     defaultConfig {
         applicationId = "app.riven.cuepatch"
         minSdk = 26
         targetSdk = 35
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionCode = 1
         versionName = "1.0.0"
         resValue("string", "app_check_site_key", recaptchaKey)
@@ -27,6 +29,8 @@ android {
 kotlin { jvmToolchain(17) }
 
 dependencies {
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
     implementation("com.google.firebase:firebase-ai:18.2.0")
     implementation("com.google.firebase:firebase-ai-ondevice:16.0.0-beta08")
     releaseImplementation("com.google.firebase:firebase-appcheck-recaptcha:20.1.0")
