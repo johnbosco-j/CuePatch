@@ -32,6 +32,8 @@ On November 23 the Vercel live check for swapping the opening microphone returne
 
 ## Live acceptance record
 
+On November 26, the public Android 1.0.0 APK ran the opening microphone change on a physical Galaxy A54 5G (Android 14) in Firebase Test Lab. Firebase AI Logic reported **In Cloud · 4.3 seconds**. The result contained only `AU-01`, with zero missed or unexpected cues. The release used its production App Check provider. A separate private-mode test on a Pixel 10 Pro (Android 16) recorded the local model as `UNAVAILABLE` for 90 seconds and stopped before inference. On November 27, the Galaxy S25 Ultra (Android 16) ran the actual private request after a three-minute readiness check. Firebase returned `FirebaseAIOnDeviceNotAvailableException`, and the app reported that cloud execution was disabled.
+
 Use fresh revisions for each trial. The table gives acceptance targets. Observed results are recorded above.
 
 | Test on actual hardware | Pass condition | Evidence to keep |
@@ -87,7 +89,7 @@ The official deadline is December 1 at 3:30 a.m. IST. Keep judge access working 
 ## Submission gate
 
 - Confirm entrant and team eligibility, add all contributors as members on Devpost, and name the representative. India is outside the listed excluded locations. Each member still needs to satisfy the individual rules.
-- Choose **Web (Chrome)**. Add another category only after a native supported implementation runs via Firebase AI Logic and appears in the demo. A responsive web layout by itself is the Web entry.
+- CuePatch runs on **Web (Chrome)** and **Android**. For a two-platform submission, show the installed Android desk making its native Firebase request as well as the working web desk in the final video.
 - Provide a working, free judge path and clean-browser instructions. Use the dedicated demo project. The rules bar production API keys, live secrets, confidential commercial data and PII in submission materials.
 - Make the GitHub/GitLab repo public with source, assets, instructions and the root MIT LICENSE visible in About. Confirm both Firebase model paths execute. State new work and disclose reused material.
 - Upload the real demo publicly on YouTube, check the video and repo from a signed-out browser, and add the app, video and repo URLs to Devpost. A private or unlisted video does not match the published visibility requirement.

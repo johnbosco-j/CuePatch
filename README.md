@@ -4,6 +4,8 @@ A stage manager turns one last-minute rehearsal change into reviewed revisions f
 
 [Open CuePatch on Vercel](https://cuepatch-iota.vercel.app/) · [Run a live Firebase check](https://cuepatch-iota.vercel.app/checks.html) · [Download the Android APK](https://github.com/johnbosco-j/CuePatch/releases/download/android-v1.0.0/CuePatch-1.0.0.apk) · [Android setup](android/README.md)
 
+On a physical Galaxy A54 5G, the published APK found the opening microphone cue in 4.3 seconds using Firebase's cloud fallback. It returned `AU-01` alone and left the singer's cue out of the proposed changes. [Android test results and reproduction steps](android/README.md#physical-device-results)
+
 ![Studio matinee crew handoff board with one department needing revision 2](media/crew-handoff.jpg)
 
 ## Use the show desk

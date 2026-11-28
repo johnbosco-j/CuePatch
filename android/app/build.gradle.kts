@@ -15,7 +15,8 @@ android {
         applicationId = "app.riven.cuepatch"
         minSdk = 26
         targetSdk = 35
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = if (providers.gradleProperty("cuepatchPrivateTest").isPresent)
+            "app.riven.cuepatch.PrivateInferenceRunner" else "androidx.test.runner.AndroidJUnitRunner"
         versionCode = 1
         versionName = "1.0.0"
         resValue("string", "app_check_site_key", recaptchaKey)

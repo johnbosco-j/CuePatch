@@ -55,6 +55,7 @@ public class ReleaseInferenceTest {
                 desk = (WebView) content.getChildAt(0);
             });
             await("Boolean(document.querySelector('a[href=\"checks.html\"]'))", 30);
+            if (route.equals("private")) LocalModelPreparation.prepare();
             evaluate("document.querySelector('a[href=\"checks.html\"]').click(); true");
             await("Boolean(document.querySelector('#run:not(:disabled)'))", 30);
             evaluate("const scenario=document.querySelector('#case'); scenario.value='2';"

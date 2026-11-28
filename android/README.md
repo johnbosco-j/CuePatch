@@ -20,8 +20,16 @@ Tap **Check on-device model** from the inference control. If Android offers a do
 
 Import a production via the system picker. Call one block, close and reopen the app, and confirm that progress was restored. Issue a crew copy and share its revision link with another phone, or save a portable HTML file and open it offline. The native print action opens Android’s print UI. Browser and Android storage are separate; exchange a production backup to move a show between them.
 
+### Physical-device results
+
+The signed 1.0.0 APK passed the opening microphone test on a Galaxy A54 5G running Android 14. The Firebase result was **In Cloud · 4.3 seconds**, with `AU-01` as the only proposed edit. A Pixel 10 Pro running Android 16 reported the local model as `UNAVAILABLE` throughout the 90-second readiness check. Both runs took place on November 26, 2026.
+
+On November 27, the same signed APK was tested on a Galaxy S25 Ultra running Android 16. After a three-minute readiness check the test ran the actual private rehearsal request. Firebase returned `FirebaseAIOnDeviceNotAvailableException` and the desk displayed that cloud execution was disabled. Successful Gemini Nano inference is still unverified.
+
 ### Repeat the signed-release test
 
 Build the separate instrumentation APK with `./gradlew :app:assembleReleaseAndroidTest`. Sign it with the same certificate as the release you are testing. In Firebase Test Lab, choose **Instrumentation**, upload the published app APK and the signed test APK, and select a physical Android phone. The test opens **Live checks**, chooses **Swap the opening microphone**, enables cloud fallback, and checks that the SDK reports an inference source and that only AU-01 changes. The device log records the source and elapsed time under `CuePatchReleaseTest`. To require local execution on a prepared device, supply the instrumentation argument `route=private`.
 
 [Android hybrid inference](https://firebase.google.com/docs/ai-logic/hybrid/android/get-started) · [Android reCAPTCHA Enterprise App Check](https://firebase.google.com/docs/app-check/android/recaptcha-enterprise-provider) · [App Check debug provider](https://firebase.google.com/docs/app-check/android/debug-provider)
+
+For a private-only run from the Test Lab console, build the companion with `./gradlew -PcuepatchPrivateTest :app:assembleReleaseAndroidTest` and sign it as above. Use the same published app APK. Choose a [supported phone](https://developers.google.com/ml-kit/genai#device_support) and set a 12-minute test timeout. The companion checks the model, requests a download if Firebase offers one, and runs the in-app rehearsal with cloud fallback disabled. A successful test requires an on-device source and exactly the expected cue IDs.
